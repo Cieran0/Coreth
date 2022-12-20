@@ -5,8 +5,6 @@ import java.util.List;
 
 public class Tokenizer {
 
-    public static final Integer PLACEHOLDER_CHARNO = 14;
-
     public static List<Token> tokenizeLine(String line, Function scope, Integer lineNo) {
         int index = 0;
         List<Token> tokens = new ArrayList<Token>();
@@ -22,28 +20,32 @@ public class Tokenizer {
             for (String param : params) {
                 paramTokens.addAll(tokenizeLine(param,scope,lineNo));
             }
-            tokens.add(new TokenFunctionCall(line.substring(0, start),lineNo,PLACEHOLDER_CHARNO, paramTokens));
+            String functionName = line.substring(0, start);
+            tokens.add(new Token(TokenType.FUNCTION_CALL,functionName,lineNo,line.indexOf(functionName), paramTokens));
 
         } else if(line.contains("=")) {
             String[] start = line.substring(0, line.indexOf('=')-1).split(" ");
             String type = start[0];
             String name = start[1];
             String value = line.substring(line.indexOf('=')+1);
+            String v;
             if(type.equals("int")) {
-                
-                tokens.add(new TokenVariableDeclaration<Integer>(name,lineNo,PLACEHOLDER_CHARNO,scope,Integer.parseInt(value.trim())));
+                v = value.trim();
+                tokens.add(new Token(TokenType.VARIABLE_DECLARATION,name,lineNo,line.indexOf(v),scope,Integer.parseInt(v),VariableType.INT));
             } else if(type.equals("string")) {
-                tokens.add(new TokenVariableDeclaration<String>(name,lineNo,PLACEHOLDER_CHARNO,scope,value.split("\"")[1]));
+                v = value.split("\"")[1];
+                tokens.add(new Token(TokenType.VARIABLE_DECLARATION,name,lineNo,line.indexOf(v),scope,v,VariableType.STRING));
             } else {
                 Parser.exitWithError(type + " is an invalid type!",92);
             }
+            
         }
         else if(line.matches("-?\\d+")) {
-            tokens.add(new TokenLiteralNum(Integer.parseInt(line),lineNo,PLACEHOLDER_CHARNO));
+            tokens.add(new Token(TokenType.LITERAL_NUM,lineNo,0,Integer.parseInt(line)));
         } else if(line.startsWith("\"") && line.endsWith("\"")) {
-            tokens.add(new TokenLiteralString(line.substring(1, line.length()-1),lineNo,PLACEHOLDER_CHARNO));
+            tokens.add(new Token(TokenType.LITERAL_STRING,lineNo,0,line.substring(1, line.length()-1)));
         } else if(!line.isBlank()) {
-            tokens.add(new TokenVariableRefrence<Integer>(line,lineNo,PLACEHOLDER_CHARNO,scope));
+            tokens.add(new Token(TokenType.VARIABLE_REFRENCE,line,lineNo,0,scope));
         }
         return tokens;
     }

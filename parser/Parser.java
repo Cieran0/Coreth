@@ -83,5 +83,22 @@ public class Parser {
         System.exit(errorNo);
     }
 
+    public static VariableType TokenToVariableType(Token token) {
+        if(token.getType() == TokenType.VARIABLE_REFRENCE) {
+            return token.getVariable().getType();
+        }
+        if(token.getType() == TokenType.FUNCTION_CALL) {
+            return Function.funcMap.get(token.name).getReturnType();
+        }
+        switch (token.getType()) {
+            case LITERAL_NUM:
+                return VariableType.INT;
+            case LITERAL_STRING:
+                return VariableType.STRING;
+            default:
+                return VariableType.NULL;
+        }
+    }
+
 }
 

@@ -1,21 +1,24 @@
 package parser;
 
-public class Variable<T> {
+public class Variable {
 
     private String name;
-    private T value;
+    private Object value;
+    private VariableType type;
 
-    public Variable(String name) {
+    public Variable(String name, VariableType type) {
         this.name=name;
         this.value=null;
+        this.type=type;
     }
 
-    public Variable(String name, T value) {
+    public Variable(String name, VariableType type, Object value) {
         this.name=name;
         this.value=value;
+        this.type = type;
     }
 
-    public static <T> Variable<T> getVar(String name, Function scope, T type) {
+    public static Variable getVar(String name, Function scope) {
         if(!scope.localVarMap.containsKey(name)) {
             System.out.println("variables in function " + scope.getName() + ":");
             for (String key : scope.localVarMap.keySet()) {
@@ -27,11 +30,20 @@ public class Variable<T> {
     }
 
 
-    public T getValue() {
+    public Object getValue() {
         return this.value;
     }
 
-    public void setValue(T value) {
+    public String getStringValue(){
+
+        return ((String)this.value);
+    }
+
+    public Integer getIntValue(){
+        return ((Integer)this.value);
+    }
+
+    public void setValue(Object value) {
         this.value = value;
     }
 
@@ -42,5 +54,9 @@ public class Variable<T> {
     @Override
     public String toString() {
         return "| Variable | name: " + name + " | value: " + value + " |";
+    }
+
+    public VariableType getType() {
+        return this.type;
     }
 }   

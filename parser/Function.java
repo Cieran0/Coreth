@@ -5,16 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import parser.Token.TokenType;
-
 public class Function {
     
     private String name;
-    private List<TokenType> expectedParams;
+    private List<VariableType> expectedParams;
     private List<String> paramNames;
     private List<Token> tokens;
     private boolean isbuiltIn;
     private Consumer<List<Token>> linkedBuiltInFunction;
+    private VariableType returnType = VariableType.NULL;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
@@ -24,12 +23,12 @@ public class Function {
         this.name=name;
         this.tokens=null;
         this.isbuiltIn = false;
-        this.expectedParams=new ArrayList<Token.TokenType>();
+        this.expectedParams=new ArrayList<VariableType>();
         this.paramNames=new ArrayList<String>();
         funcMap.put(name, this);
     }
 
-    public Function(String name, Consumer<List<Token>> linkedBuiltInFunction, List<Token.TokenType> expectedParams) {
+    public Function(String name, Consumer<List<Token>> linkedBuiltInFunction, List<VariableType> expectedParams) {
         this.name=name;
         this.isbuiltIn = true;
         this.linkedBuiltInFunction = linkedBuiltInFunction;
@@ -43,18 +42,17 @@ public class Function {
         for (String param : line.split(",")) {
             String[] split = param.split(" ");
             String typeString = split[0].trim();
-            TokenType type = null;
+            VariableType type = null;
             String name = split[1].trim();
             this.paramNames.add(name);
             if(typeString.equals("int")) {
-                type=TokenType.LITERAL_NUM;
-                localVarMap.put(name, new Variable<Integer>(name));
+                type=VariableType.INT;
             } else if(typeString.equals("string")) {
-                type=TokenType.LITERAL_STRING;
-                localVarMap.put(name, new Variable<String>(name));
+                type=VariableType.STRING;
             } else {
                 Parser.exitWithError(type + " is not a valid type", 92);
             }
+            localVarMap.put(name, new Variable(name,type));
             this.expectedParams.add(type);
         }
     }
@@ -67,6 +65,10 @@ public class Function {
         return this.tokens;
     }
 
+    public VariableType getReturnType() {
+        return returnType;
+    }
+
     public void setTokens(List<Token> tokens) {
         this.tokens=tokens;
     }
@@ -75,13 +77,11 @@ public class Function {
         if(expectedParams.size() != got.size())
             Parser.exitWithError(("In function, " + this.name + " expected " + expectedParams.size() + " params got " + got.size()) ,-1);
         
-        /**
-         * TODO: Implement proper type checking
-         * for (int i =0; i < expectedParams.size(); i++) {
-         *    if(!got.get(i).getType().equals(expectedParams.get(i)))
-         *        Parser.exitWithError(("In function, " + this.name + ", for param "+ i+ " expected " + expectedParams.get(i) + " params got " + got.get(i).getType()) ,-1);
-         * }
-         */
+        for (int i =0; i < got.size(); i++) {
+            VariableType gotType = Parser.TokenToVariableType(got.get(i));
+           if(!gotType.equals(expectedParams.get(i)))
+               Parser.exitWithError(("In function, " + this.name + ", for param "+ i+ " expected " + expectedParams.get(i) + " params got " + gotType) ,-1);
+        }
     }
 
     public void execute(List<Token> params) {
@@ -92,11 +92,11 @@ public class Function {
             checkParams(params);
             for (int i=0; i < paramNames.size(); i++) {
                 switch (expectedParams.get(i)) {
-                    case LITERAL_NUM:
-                        ((Variable<Integer>)localVarMap.get(paramNames.get(i))).setValue(params.get(i).toNumber());
+                    case INT:
+                        localVarMap.get(paramNames.get(i)).setValue(params.get(i).getInt());
                         break;
-                    case LITERAL_STRING:
-                        ((Variable<String>)localVarMap.get(paramNames.get(i))).setValue(params.get(i).toStringLit());
+                    case STRING:
+                        localVarMap.get(paramNames.get(i)).setValue(params.get(i).getString());
                         break;
                     default:
                         break;

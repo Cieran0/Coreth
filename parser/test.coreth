@@ -1,8 +1,8 @@
 main() {
-    string x = "10"
-    print("1000")
+    int x = 0
+    print(x)
 }
 
-print(string s) {
-    write(0,s)
+print(int i) {
+    write(i,"1000")
 }
