@@ -1,0 +1,8 @@
+main() {
+    string x = "10"
+    print("1000")
+}
+
+print(string s) {
+    write(0,s)
+}
