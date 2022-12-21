@@ -8,9 +8,7 @@ public class Token {
     private String name;
     private Integer lineNo;
     private Integer charNo;
-    private String stringValue;
-    private Integer intValue;
-    private Object objectValue;
+    private Object value;
     private Function scope;
     private String variableName;
     private VariableType variableType;
@@ -26,14 +24,14 @@ public class Token {
     //TokenLiteralString
     public static Token new_LiteralString(Integer lineNo, Integer charNo, String value) {
         Token t = new Token(TokenType.LITERAL_STRING,value,lineNo,charNo);
-        t.stringValue = value;
+        t.value = value;
         return t;
     }
 
     //TokenLiteralNum
     public static Token new_LiteralNum(Integer lineNo, Integer charNo, Integer value) {
         Token t = new Token(TokenType.LITERAL_NUM, value.toString(), lineNo, charNo);
-        t.intValue = value;
+        t.value = value;
         return t;
     }
 
@@ -46,7 +44,7 @@ public class Token {
         return t;
     }
     
-    //public TokenVariableDeclaration(no value)
+    //public TokenVariableDeclaration
     public static Token new_VariableDeclaration(String name, Integer lineNo, Integer charNo, Function scope, VariableType variableType) {
         Token t = new Token(TokenType.VARIABLE_DECLARATION, name, lineNo, charNo);
         t.variableName = name;
@@ -55,22 +53,16 @@ public class Token {
         t.scope.localNameVariableTypeMap.put(t.name, t.variableType);
         return t;
     }
-    
-    //public TokenVariableDeclaration
-    public static Token new_VariableDeclaration(String name, Integer lineNo, Integer charNo, Function scope, Object value, VariableType variableType) {
-        Token t = new Token(TokenType.VARIABLE_DECLARATION, name, lineNo, charNo);
-        t.variableName = name;
-        t.variableType = variableType;
-        t.scope = scope;
-        t.objectValue = value;
-        t.scope.localNameVariableTypeMap.put(t.name, t.variableType);
-        return t;
-    }
 
     //public TokenFunctionCall
     public static Token new_FunctionCall(String name, Integer lineNo, Integer charNo, List<Token> params) {
         Token t = new Token(TokenType.FUNCTION_CALL, name, lineNo, charNo);
         t.params = params;
+        return t;
+    }
+
+    public static Token new_VariableAssignment(Integer lineNo, Integer charNo) {
+        Token t = new Token(TokenType.VARIABLE_ASSIGNMENT, "Variable Assignment", lineNo, charNo);
         return t;
     }
 
@@ -99,7 +91,7 @@ public class Token {
 
     //Shouldnt always work!
     public void declareVariable() {
-        this.scope.localVarMap.put(this.name, new Variable(this.variableName,this.variableType,this.objectValue));
+        this.scope.localVarMap.put(this.name, new Variable(this.variableName,this.variableType,this.value));
     }
 
     public Variable getVariable() {
@@ -115,7 +107,7 @@ public class Token {
     }
 
     public Integer getInt() {
-        if(this.type == TokenType.LITERAL_NUM) return this.intValue;
+        if(this.type == TokenType.LITERAL_NUM) return (Integer)this.value;
         return this.getVariable().getIntValue();
     }
 
@@ -124,7 +116,7 @@ public class Token {
     }
 
     public String getString() {
-        if(this.type == TokenType.LITERAL_STRING) return this.stringValue;
+        if(this.type == TokenType.LITERAL_STRING) return (String)this.value;
         return this.getVariable().getStringValue();
     }
     //End of shouldnt always work!

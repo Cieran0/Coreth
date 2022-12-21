@@ -1,5 +1,5 @@
 main() {
-    printAgain( "Hey!" , 0 )
+    printAgain( "Hello" , 0)
 }
 
 printAgain( string s , int i ) {
