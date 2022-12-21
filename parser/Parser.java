@@ -36,17 +36,13 @@ public class Parser {
 
         String lines = readLines(path);
         lines = ExtractFunction(lines);
-        lines = ExtractFunction(lines);
         
-        System.out.println("Functions "+functions.size()+":");
-        for (Function f : functions.values()) {
-            if(f.getName().equals("main")) mainFound = true;
-            System.out.println(f.getName());
-        }
-        if(!mainFound)
+        Function mainFunction = functions.get("main");
+        if(mainFunction != null) mainFound = true;
+        if(!mainFound) {
             exitWithError("main function not found", 1);
-        Simulator.SimulateFunction(functions.get("main"));
-        
+        }
+        Simulator.SimulateFunction(mainFunction,0);
     }
 
     public static String ExtractFunction(String lines) {
@@ -69,7 +65,7 @@ public class Parser {
         String sub = content.substring(start, content.length()-1);
 
         f.expectedParamsFromString(params);
-        f.setTokens(Tokenizer.tokenize(sub.split("\n"),f));
+        f.addTokens(Tokenizer.tokenize(sub.split("\n"),f));
         //System.out.println(name);
         functions.put(name, f);
         if(lines == newLines) return lines;
@@ -85,10 +81,14 @@ public class Parser {
 
     public static VariableType TokenToVariableType(Token token) {
         if(token.getType() == TokenType.VARIABLE_REFRENCE) {
-            return token.getVariable().getType();
+            VariableType vt = token.getVariableType();
+            if(vt == null) {
+                exitWithError("Variable " + token.getName() + " is not defined!", -99);
+            }
+            return vt;
         }
         if(token.getType() == TokenType.FUNCTION_CALL) {
-            return Function.funcMap.get(token.name).getReturnType();
+            return Function.funcMap.get(token.getName()).getReturnType();
         }
         switch (token.getType()) {
             case LITERAL_NUM:

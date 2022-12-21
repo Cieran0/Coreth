@@ -1,8 +1,7 @@
 main() {
-    int x = 0
-    print(x)
+    printAgain( "Hey!" , 0 )
 }
 
-print(int i) {
-    write(i,"1000")
+printAgain( string s , int i ) {
+    write(i,s)
 }
