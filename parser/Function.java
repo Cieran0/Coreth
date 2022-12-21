@@ -111,7 +111,7 @@ public class Function {
         } else {
             checkParams(params);
             for (int i=0; i < paramNames.size(); i++) {
-                Simulator.SimulateToken(tokens.get(i),this);
+                Simulator.SimulateToken(i,this);
                 switch (expectedParams.get(i)) {
                     case INT:
                         localVarMap.get(paramNames.get(i)).setValue(params.get(i).getInt());

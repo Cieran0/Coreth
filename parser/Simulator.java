@@ -7,13 +7,14 @@ public class Simulator {
     public static void SimulateFunction(Function f, int start) {
         List<Token> tokens = f.getTokens();
         for (int i = start; i < tokens.size(); i++) {
-            SimulateToken(tokens.get(i), f);
+            SimulateToken(i, f);
         }
     }
 
-    public static void SimulateToken(Token t, Function f) {
+    public static void SimulateToken(Integer index, Function f) {
+        List<Token> tokens = f.getTokens();
+        Token t = tokens.get(index);
         if(t.getType() == TokenType.FUNCTION_CALL) {
-            //t.printInfo();
             String fName = t.getName();
             if(Function.funcMap.containsKey(fName)) {
                 Function func = Function.funcMap.get(fName);
@@ -24,6 +25,20 @@ public class Simulator {
             }
         } else if(t.getType() == TokenType.VARIABLE_DECLARATION) {
             t.declareVariable();
+        } else if(t.getType() == TokenType.VARIABLE_ASSIGNMENT) {
+            Variable var = tokens.get(index-1).getVariable();
+            Token valueToken = tokens.get(index+1);
+            switch(var.getType()){
+                case INT:
+                    var.setValue(valueToken.getInt());
+                    break;
+                case STRING:
+                    var.setValue(valueToken.getString());
+                    break;
+                default:
+                    break;
+
+            }
         }
     }
 }

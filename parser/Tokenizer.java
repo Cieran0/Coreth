@@ -7,72 +7,20 @@ import java.util.regex.Pattern;
 
 public class Tokenizer {
 
+    private static String emptyString(int size) {
+        return " ".repeat(size);
+    }
+
     public static List<Token> tokenizeLine(String line, Function scope, Integer lineNo) {
-        int index = 0;
         List<Token> tokens = new ArrayList<Token>();
         line = extractFunctionCalls(tokens,line,lineNo,scope);
         line = extractStringLiterals(tokens,line,lineNo);
         line = extractNumberLiterals(tokens,line,lineNo);
+        line = extractVariableDeclaration(tokens,line,lineNo,scope);
+        line = extractVariableAssigment(tokens,line,lineNo);
         extractVariableRefrence(tokens,line,lineNo,scope);
         return tokens;
-
-        /*  TODO: Add Variable Declaration/Assignment back into Tokenizer!
-        * 
-        *else if(line.contains("=")) {
-        *    String[] start = line.substring(0, line.indexOf('=')-1).split(" ");
-        *    String type = start[0];
-        *    String name = start[1];
-        *    String value = line.substring(line.indexOf('=')+1);
-        *    String v;
-        *    if(type.equals("int")) {
-        *        v = value.trim();
-        *        tokens.add(Token.new_VariableDeclaration(name,lineNo,line.indexOf(v),scope,Integer.parseInt(v),VariableType.INT));
-        *    } else if(type.equals("string")) {
-        *        v = value.split("\"")[1];
-        *        tokens.add(Token.new_VariableDeclaration(name,lineNo,line.indexOf(v),scope,v,VariableType.STRING));
-        *    } else {
-        *        Parser.exitWithError(type + " is an invalid type!",92);
-        *    }
-        *    
-        *}
-        *
-        *else if (line.contains("=")) {
-        *    tokens.add(Token.new_VariableAssignment(lineNo, line.indexOf("=")));
-        *}
-        */
     }
-
-    
-    private static String extractNumberLiterals(List<Token> tokens, String line, Integer lineNo) {
-        String[] matches = Pattern.compile("-?\\d+")
-        .matcher(line)
-        .results()
-        .map(MatchResult::group)
-        .toArray(String[]::new);
-
-        for (String match : matches) {
-            tokens.add(Token.new_LiteralNum(lineNo, line.indexOf(match), Integer.parseInt(match)));
-            line = line.replace(match, emptyString(match.length()));
-        }
-        return line;
-    }
-
-
-    private static String extractStringLiterals(List<Token> tokens, String line, Integer lineNo) {
-        String[] matches = Pattern.compile("\"(.*?)\"")
-        .matcher(line)
-        .results()
-        .map(MatchResult::group)
-        .toArray(String[]::new);
-
-        for (String match : matches) {
-            String value = match.substring(1,match.length()-1);
-            tokens.add(Token.new_LiteralString(lineNo, line.indexOf(match), value));
-            line = line.replace(match, emptyString(match.length()));
-        }
-        return line;
-    }
-
 
     private static String extractFunctionCalls(List<Token> tokens, String line, Integer lineNo, Function scope) {
         while(line.matches(".*\\((.*?)\\).*")) {
@@ -87,7 +35,7 @@ public class Tokenizer {
             }
             String paramString = line.substring(start+1, end);
             List<Token> paramTokens = new ArrayList<Token>();
-            paramTokens.addAll(tokenizeLine(paramString,scope,lineNo));
+            paramTokens.addAll(Function.sortTokens(tokenizeLine(paramString,scope,lineNo)));
             for (int i = start-1; i >= 0 && !Character.isWhitespace(line.charAt(i)); i--) {
                 nameIndex = i;
             }
@@ -99,18 +47,59 @@ public class Tokenizer {
         return line;
     }
 
-    private static String emptyString(int size) {
-        return " ".repeat(size);
-    }
-
-    private static void extractVariableRefrence(List<Token> tokens, String line, Integer lineNo, Function scope) {
-        String[] matches = Pattern.compile("\\w+")
+    private static String[] getMatches(String line, String query) {
+        String[] matches = Pattern.compile(query)
         .matcher(line)
         .results()
         .map(MatchResult::group)
         .toArray(String[]::new);
+        return matches;
+    } 
 
-        for (String match : matches) {
+    private static String extractStringLiterals(List<Token> tokens, String line, Integer lineNo) {
+        for (String match : getMatches(line, "\"(.*?)\"")) {
+            String value = match.substring(1,match.length()-1);
+            tokens.add(Token.new_LiteralString(lineNo, line.indexOf(match), value));
+            line = line.replace(match, emptyString(match.length()));
+        }
+        return line;
+    }
+
+    private static String extractNumberLiterals(List<Token> tokens, String line, Integer lineNo) {
+        for (String match : getMatches(line, "-?\\d+")) {
+            tokens.add(Token.new_LiteralNum(lineNo, line.indexOf(match), Integer.parseInt(match)));
+            line = line.replace(match, emptyString(match.length()));
+        }
+        return line;
+    }
+
+    private static String extractVariableDeclaration(List<Token> tokens, String line, Integer lineNo, Function scope) {
+        for (String match : getMatches(line,"(string|int).\\w+")) {
+            String[] matchSplit = match.split(" ");
+            String typeString = matchSplit[0];
+            String name = matchSplit[1];
+            VariableType type = VariableType.NULL;
+            if(typeString.equals("string")) {
+                type = VariableType.STRING;
+            } else if(typeString.equals("int")) {
+                type = VariableType.INT;
+            }
+            tokens.add(Token.new_VariableDeclaration(name,lineNo,line.indexOf(match),scope,type));
+            line = line.replace(match, emptyString(match.length()));
+        }
+        return line;
+    }
+    
+    private static String extractVariableAssigment(List<Token> tokens, String line, Integer lineNo) {
+        for (String match : getMatches(line,"=")) {
+            tokens.add(Token.new_VariableAssignment(lineNo,line.indexOf(match)));
+            line = line.replace(match, emptyString(match.length()));
+        }
+        return line;
+    }
+
+    private static void extractVariableRefrence(List<Token> tokens, String line, Integer lineNo, Function scope) {
+        for (String match : getMatches(line, "\\w+")) {
             tokens.add(Token.new_VariableRefrence(match, lineNo, line.indexOf(match), scope));
             line.replace(match, emptyString(match.length()));
         }
