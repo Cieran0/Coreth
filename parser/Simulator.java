@@ -14,7 +14,9 @@ public class Simulator {
     public static Token SimulateToken(Integer index, Function f) {
         List<Token> tokens = f.getTokens();
         Token t = tokens.get(index);
-
+        Variable var;
+        Token nextToken;
+        Token previousToken;
         switch(t.getType()) { 
             case FUNCTION_CALL:
                 String fName = t.getName();
@@ -31,14 +33,15 @@ public class Simulator {
             case VARIABLE_REFRENCE:
                 return t;
             case VARIABLE_ASSIGNMENT:
-                Variable var = tokens.get(index-1).getVariable();
-                Token valueToken = SimulateToken(index+1, f);
+                previousToken = tokens.get(index-1);
+                var = previousToken.getVariable();
+                nextToken = SimulateToken(index+1, f);
                 switch(var.getType()){
                     case INT:
-                        var.setValue(valueToken.getInt());
+                        var.setValue(nextToken.getInt());
                         break;
                     case STRING:
-                        var.setValue(valueToken.getString());
+                        var.setValue(nextToken.getString());
                         break;
                     default:
                         break;
@@ -47,6 +50,35 @@ public class Simulator {
             case VARIABLE_DECLARATION:
                 t.declareVariable();
                 break;
+            case PLUS:
+            case MINUS:
+            case DIVIDE:
+            case MULTIPLY:
+            case MODULUS:
+                previousToken = SimulateToken(index+1, f);
+                nextToken = SimulateToken(index+2, f);
+                switch(Parser.TokenToVariableType(previousToken)){
+                    case INT:
+                        switch(t.getType()) {
+                            case PLUS:
+                                return Token.new_LiteralNum(0,0,previousToken.getInt() + nextToken.getInt());
+                            case MINUS:
+                                return Token.new_LiteralNum(0,0,previousToken.getInt() - nextToken.getInt());
+                            case DIVIDE:
+                                return Token.new_LiteralNum(0,0,previousToken.getInt() / nextToken.getInt());
+                            case MULTIPLY:
+                                return Token.new_LiteralNum(0,0,previousToken.getInt() * nextToken.getInt());
+                            case MODULUS:
+                                return Token.new_LiteralNum(0,0,previousToken.getInt() % nextToken.getInt());
+                        }
+                    case STRING:
+                        //var.setValue(valueToken.getString());
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            
             default:
                 break;
         }

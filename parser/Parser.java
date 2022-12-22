@@ -7,9 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Parser {
-
-    public static HashMap<String,Function> functions = new HashMap<String,Function>(); 
+public class Parser { 
 
     public static String readLines(String path) {
         try {
@@ -30,17 +28,22 @@ public class Parser {
     public static void main(String[] args) {
         boolean mainFound = false;
         String path = (args.length > 0)? args[0] : "test.coreth";
-        Function.setUpMap();
+        Function.setUpBuiltInFunctions();
 
         String lines = readLines(path);
         lines = ExtractFunction(lines);
         
-        Function mainFunction = functions.get("main");
+        Function mainFunction = Function.funcMap.get("main");
+        for (Function function : Function.funcMap.values()) {
+            if(!function.isInBuiltFunction()) {
+                function.addTokensFromContent();
+            }
+        }
         if(mainFunction != null) mainFound = true;
         if(!mainFound) {
             exitWithError("main function not found", 1);
         }
-        Simulator.SimulateFunction(mainFunction,0);
+        mainFunction.execute(List.of());
     }
 
     public static String ExtractFunction(String lines) {
@@ -56,16 +59,10 @@ public class Parser {
             else if(lines.charAt(i) == '}') open--;
             end = i;
         }
-        Function f = new Function(name);
         String content = newLines.substring(lines.indexOf(name), end+1);
-        newLines = lines.replace(content, "");
-
         String sub = content.substring(start, content.length()-1);
-
-        f.expectedParamsFromString(params);
-        f.addTokens(Tokenizer.tokenize(sub.split("\n"),f));
-        //System.out.println(name);
-        functions.put(name, f);
+        Function f = new Function(name,sub.split("\n"),params);
+        newLines = lines.replace(content, "");
         if(lines == newLines) return lines;
         newLines = ExtractFunction(newLines);
         return newLines;

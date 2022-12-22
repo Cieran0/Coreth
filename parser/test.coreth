@@ -1,6 +1,9 @@
 main() {
-    string s="Hello"
-    printAgain(s)
+    int x = 1
+    x = x * 10
+    printNumber(x)
+    x = x - 5 
+    printNumber(x)
 }
 
 printAgain(string s) {

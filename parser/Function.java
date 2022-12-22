@@ -15,13 +15,14 @@ public class Function {
     private boolean isbuiltIn;
     private BuiltInFunction linkedBuiltInFunction;
     private VariableType returnType = VariableType.NULL;
+    private String[] content;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
     public HashMap<String, Variable> localVarMap = new HashMap<String, Variable>();
     public HashMap<String, VariableType> localNameVariableTypeMap = new HashMap<String, VariableType>(); 
 
-    public static void setUpMap() {
+    public static void setUpBuiltInFunctions() {
         new Function("write", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
@@ -32,15 +33,24 @@ public class Function {
                 return null;
             }
         },List.of(VariableType.INT, VariableType.STRING));
-        
+
+        new Function("printNumber", new BuiltInFunction() {
+            @Override
+            public Token run(List<Token> params) {
+                System.out.println(params.get(0).getInt());
+                return null;
+            }
+        },List.of(VariableType.INT));
     }
 
-    public Function(String name) {
+    public Function(String name, String[] content, String paramString) {
         this.name=name;
         this.tokens=new ArrayList<Token>();
         this.isbuiltIn = false;
         this.expectedParams=new ArrayList<VariableType>();
         this.paramNames=new ArrayList<String>();
+        this.content = content;
+        this.expectedParamsFromString(paramString);
         funcMap.put(name, this);
     }
 
@@ -89,8 +99,16 @@ public class Function {
         return returnType;
     }
 
+    public boolean isInBuiltFunction() {
+        return this.isbuiltIn;
+    }
+
     public void addTokens(List<Token> tokens) {
         this.tokens.addAll(sortTokens(tokens));
+    }
+
+    public void addTokensFromContent() {
+        this.tokens.addAll(sortTokens(Tokenizer.tokenize(content, this)));
     }
 
     public static List<Token> sortTokens(List<Token> tokens) {
@@ -102,6 +120,13 @@ public class Function {
                 tokens.set(j, tokens.get(j-1));
                 tokens.set(j-1, buff);
                 j--;
+            }
+        }
+        for(int i = 1; i < tokens.size(); i++) {
+            if(Token.MathsTokens.contains(tokens.get(i).getType())) {
+                buff = tokens.get(i);
+                tokens.set(i, tokens.get(i-1));
+                tokens.set(i-1, buff);
             }
         }
         return tokens;
@@ -138,7 +163,9 @@ public class Function {
                         break;
                 }
             }
-
+            for (Token token : tokens) {
+                token.printInfo();
+            }
             Simulator.SimulateFunction(this,paramNames.size());
         }
         return null;

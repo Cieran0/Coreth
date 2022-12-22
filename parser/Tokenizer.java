@@ -1,7 +1,9 @@
 package parser;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
@@ -20,31 +22,28 @@ public class Tokenizer {
         line = extractNumberLiterals(tokens,line,lineNo);
         line = extractVariableDeclaration(tokens,line,lineNo,scope);
         line = extractVariableAssigment(tokens,line,lineNo);
+        line = extractMaths(tokens,line,lineNo);
         extractVariableRefrence(tokens,line,lineNo,scope);
         return tokens;
     }
 
     private static String extractFunctionCalls(List<Token> tokens, String line, Integer lineNo, Function scope) {
-        while(line.matches(".*\\((.*?)\\).*")) {
-            int start = line.indexOf("(");
-            int end = 0;
-            int nameIndex = 0;
-            int open = 1;
-            for (int i = start+1; i < line.length() && open > 0; i++) {
-                if(line.charAt(i) == '(') open++;
-                else if(line.charAt(i) == ')') open--;
-                end = i;
-            }
-            String paramString = line.substring(start+1, end);
+        String query = "(";
+        String[] functionNames = Function.funcMap.keySet().toArray(new String[Function.funcMap.keySet().size()]);
+        for (int i = 0; i < functionNames.length; i++) {
+            if(i != 0) query+="|";
+            query += functionNames[i];
+        }
+        query += ")\\((.*?)\\)";
+        for (String match : getMatches(line, query)) {
+            int paramStart = match.indexOf('(')+1;
+            int paramEnd = match.indexOf(')');
+            String name = match.substring(0,paramStart-1);
+            String paramString = match.substring(paramStart, paramEnd);
             List<Token> paramTokens = new ArrayList<Token>();
             paramTokens.addAll(Function.sortTokens(tokenizeLine(paramString,scope,lineNo)));
-            for (int i = start-1; i >= 0 && !Character.isWhitespace(line.charAt(i)); i--) {
-                nameIndex = i;
-            }
-            String name = line.substring(nameIndex,start);
-            tokens.add(Token.new_FunctionCall(name, lineNo, nameIndex, paramTokens));
-            String replace = line.substring(nameIndex,end+1);
-            line = line.replace(replace, emptyString(replace.length()));
+            tokens.add(Token.new_FunctionCall(name, lineNo, line.indexOf(match), paramTokens));
+            line = line.replace(match, emptyString(match.length()));
         }
         return line;
     }
@@ -100,10 +99,24 @@ public class Tokenizer {
         return line;
     }
 
+    private static String extractMaths(List<Token> tokens, String line, Integer lineNo) {
+        final Character[] mathsFunctions = {'+','-','*','\\','%'};
+
+        for (Character c : mathsFunctions) {
+            for (String match : getMatches(line,"\\"+c)) {
+                tokens.add(Token.new_Maths(lineNo,line.indexOf(match),c));
+                line = line.replace(match, emptyString(match.length()));
+            }
+        }
+        return line;
+    }
+
     private static void extractVariableRefrence(List<Token> tokens, String line, Integer lineNo, Function scope) {
+        int index = 0;
         for (String match : getMatches(line, "\\w+")) {
-            tokens.add(Token.new_VariableRefrence(match, lineNo, line.indexOf(match), scope));
+            tokens.add(Token.new_VariableRefrence(match, lineNo, line.indexOf(match,index), scope));
             line.replace(match, emptyString(match.length()));
+            index = line.indexOf(match,index)+1;
         }
     }
 
