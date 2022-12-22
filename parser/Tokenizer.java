@@ -15,6 +15,7 @@ public class Tokenizer {
 
     public static String tokenizeLine(List<Token> tokens, String line, Function scope, Integer lineNo) {
         line = extractIfs(tokens,line,lineNo,scope);
+        line = extractWhiles(tokens,line,lineNo,scope);
         line = extractFunctionCalls(tokens,line,lineNo,scope);
         line = extractStringLiterals(tokens,line,lineNo);
         line = extractNumberLiterals(tokens,line,lineNo);
@@ -26,6 +27,25 @@ public class Tokenizer {
         return line;
     }
 
+    private static String extractWhiles(List<Token> tokens, String line, Integer lineNo, Function scope) {
+        String query = "(while)\\s*\\((.*?)\\)\\s\\{.*\\}";
+        for (String match : getMatches(line, query)) { 
+            int paramStart = match.indexOf('(')+1;
+            int paramEnd = match.indexOf(')');
+            String paramString = match.substring(paramStart, paramEnd);
+            List<Token> paramTokens = new ArrayList<Token>();
+            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
+            int tokensStart = match.indexOf('{')+1;
+            int tokensEnd = match.lastIndexOf('}');
+            String tokenString = match.substring(tokensStart, tokensEnd);
+            List<Token> tokenTokens = new ArrayList<Token>();
+            tokenString = tokenizeLine(tokenTokens,tokenString,scope,lineNo);
+            tokens.add(Token.new_While(lineNo, lineNo, paramTokens,tokenTokens));
+            line = replace(line, match);
+        }
+        return line;
+    }
+
     private static String extractIfs(List<Token> tokens, String line, Integer lineNo, Function scope) {
         String query = "(if)\\s*\\((.*?)\\)\\s\\{.*\\}";
         for (String match : getMatches(line, query)) { 
@@ -33,7 +53,7 @@ public class Tokenizer {
             int paramEnd = match.indexOf(')');
             String paramString = match.substring(paramStart, paramEnd);
             List<Token> paramTokens = new ArrayList<Token>();
-            tokenizeLine(tokens, paramString, scope, lineNo);
+            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
             int tokensStart = match.indexOf('{')+1;
             int tokensEnd = match.lastIndexOf('}');
             String tokenString = match.substring(tokensStart, tokensEnd);
@@ -162,15 +182,18 @@ public class Tokenizer {
             tokens.add(Token.new_Not(lineNo,line.indexOf(match)));
             line = replace(line, match);
         }
+
+        for (String match : getMatches(line, "\\&\\&")) {
+            tokens.add(Token.new_And(lineNo,line.indexOf(match)));
+            line = replace(line, match);
+        }
         return line;
     }
 
     private static String extractVariableRefrence(List<Token> tokens, String line, Integer lineNo, Function scope) {
-        int index = 0;
         for (String match : getMatches(line, "\\w+")) {
-            tokens.add(Token.new_VariableRefrence(match, lineNo, line.indexOf(match,index), scope));
+            tokens.add(Token.new_VariableRefrence(match, lineNo, line.indexOf(match), scope));
             line = replace(line, match);
-            index = line.indexOf(match,index)+1;
         }
         return line;
     }

@@ -60,9 +60,9 @@ public class Parser {
             end = i;
         }
         String content = newLines.substring(lines.indexOf(name), end+1);
-        String sub = content.substring(start, content.length()-1);
+        String sub = content.substring(content.indexOf("{")+1, content.lastIndexOf("}"));
         Function f = new Function(name,sub.split("\n"),params);
-        newLines = lines.replace(content, "");
+        newLines = lines.replace(content, " ".repeat(content.length()));
         if(lines == newLines) return lines;
         newLines = ExtractFunction(newLines);
         return newLines;

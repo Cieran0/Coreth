@@ -13,6 +13,8 @@ public enum TokenType {
     DIVIDE,
     MODULUS,
     IF,
+    WHILE,
     NOT,
+    AND,
     NULL
 }

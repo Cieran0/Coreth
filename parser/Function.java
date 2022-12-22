@@ -37,7 +37,7 @@ public class Function {
         new Function("printNumber", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                System.out.println(params.get(0).getInt());
+                System.out.print(params.get(0).getInt());
                 return null;
             }
         },List.of(VariableType.INT));
@@ -123,7 +123,7 @@ public class Function {
             }
         }
         for(int i = 1; i < tokens.size(); i++) {
-            if(Token.MathsTokens.contains(tokens.get(i).getType())) {
+            if(Token.MathsTokens.contains(tokens.get(i).getType()) || Token.LogicTokens.contains(tokens.get(i).getType()) ) {
                 buff = tokens.get(i);
                 tokens.set(i, tokens.get(i-1));
                 tokens.set(i-1, buff);

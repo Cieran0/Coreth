@@ -1,0 +1,14 @@
+main() {
+    int x = 0
+    int max = 100
+    while( x - max + 1 ) { Fizz( x ) x = x + 1 } 
+}
+
+Fizz(int x) {
+    int fizzes = x % 3
+    int buzzes = x % 5
+    if(!fizzes) { write(0,"Fizz") }
+    if(!buzzes) { write(0,"Buzz") }
+    if(buzzes && fizzes) { printNumber(x) }
+    write(0,"\n")
+}

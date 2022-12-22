@@ -66,8 +66,7 @@ public class Token {
         return t;
     }
 
-    public static final Set<TokenType> MathsTokens = Set.of(TokenType.PLUS,TokenType.MINUS,TokenType.MULTIPLY,TokenType.DIVIDE,TokenType.MODULUS);
-        
+    public static final Set<TokenType> MathsTokens = Set.of(TokenType.PLUS,TokenType.MINUS,TokenType.MULTIPLY,TokenType.DIVIDE,TokenType.MODULUS);        
 
     public static Token new_Maths(Integer lineNo, Integer charNo, Character function) {
         TokenType type = null;
@@ -83,8 +82,10 @@ public class Token {
                 break;
             case '\\':
                 type = TokenType.DIVIDE;
+                break;
             case '%':
                 type = TokenType.MODULUS;
+                break;
             default:
                 Parser.exitWithError(function + " is not a valid maths function", 0);
                 break;
@@ -100,8 +101,22 @@ public class Token {
         return t;
     }
 
+    public static Token new_While(Integer lineNo, Integer charNo, List<Token> params, List<Token> whileTokens) {
+        Token t = new Token(TokenType.WHILE, "WHILE", lineNo, charNo);
+        t.params=List.of(params);
+        t.blockTokens = whileTokens;
+        return t;
+    }
+
     public static Token new_Not(Integer lineNo, Integer charNo) {
         Token t = new Token(TokenType.NOT, "!", lineNo, charNo);
+        return t;
+    }
+
+    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND);
+
+    public static Token new_And(Integer lineNo, Integer charNo) {
+        Token t = new Token(TokenType.AND, "&&", lineNo, charNo);
         return t;
     }
 
@@ -182,15 +197,18 @@ public class Token {
         print(indent,"Char",charNo);
         switch (type) {
             case IF:
+            case WHILE:
             print(indent, "Block Tokens", "");
             for (Token t : blockTokens) {
                 t.printInfo(indent+4);
             };
             case FUNCTION_CALL:
-            //print(indent, "Params", "");
-            //for (Token t : params) {
-            //    t.printInfo(indent+4);
-            //};
+            print(indent, "Params", "");
+            for (List<Token> tk : params) {
+                for (Token t : tk) {
+                    t.printInfo(indent+4);
+                }
+            };
             break;
             default:
             break;

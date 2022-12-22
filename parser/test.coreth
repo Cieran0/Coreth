@@ -1,7 +1,4 @@
 main() {
-    printAgain("Hello, World!\n")
-}
-
-printAgain(string s) {
-    write(0,s)
+    int x = 100
+    while(x) { write(0,"Hello, World!\n") x = x - 1 } 
 }

@@ -16,7 +16,10 @@ public class Simulator {
     public static List<Token> SimulateParams(Function f, List<List<Token>> tokenLists) {
         List<Token> params = new ArrayList<Token>();
         for (List<Token> tokens : tokenLists) {
-            params.add(SimulateToken(0, f, Optional.of(tokens)));
+            if(tokens.isEmpty()) {  }
+            else {
+                params.add(SimulateToken(0, f, Optional.of(tokens)));
+            }
         }
         return params;
     }
@@ -25,6 +28,20 @@ public class Simulator {
         for (int i = 0; i < block.size(); i++) {
             SimulateToken(i, f,Optional.of(block));
         }
+    }
+
+    public static Integer intFromBool(boolean bool) {
+        return bool? 1 : 0;
+    }
+
+    public static boolean BooleanFromToken(Token t) {
+        if(Parser.TokenToVariableType(t) == VariableType.STRING) {
+            return true;
+        } else if(Parser.TokenToVariableType(t) == VariableType.INT){
+            if(t.getInt() == 0) return false;
+            return true;
+        }
+        return false;
     }
 
     public static Token SimulateToken(Integer index, Function f, Optional<List<Token>> givenTokens) {
@@ -74,6 +91,7 @@ public class Simulator {
             case DIVIDE:
             case MULTIPLY:
             case MODULUS:
+            case AND:
                 previousToken = SimulateToken(index+1, f,Optional.of(tokens));
                 nextToken = SimulateToken(index+2, f,Optional.of(tokens));
 
@@ -90,6 +108,8 @@ public class Simulator {
                                 return Token.new_LiteralNum(0,0,previousToken.getInt() * nextToken.getInt());
                             case MODULUS:
                                 return Token.new_LiteralNum(0,0,previousToken.getInt() % nextToken.getInt());
+                            case AND:
+                                return Token.new_LiteralNum(0,0,intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
                             default:
                                 break;
                         }
@@ -101,23 +121,21 @@ public class Simulator {
                 }
                 break;
             case IF:
-                Token condition = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
-                if(condition.getInt() != 0 ) {
+                nextToken = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
+                if(nextToken.getInt() != 0 ) {
                     SimulateBlock(f, t.getBlockTokens());
+                }
+                break;
+            case WHILE:
+                nextToken = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
+                while(nextToken.getInt() != 0 ) {
+                    SimulateBlock(f, t.getBlockTokens());
+                    nextToken = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
                 }
                 break;
             case NOT:
                 nextToken = tokens.get(index+1);
-                int value = 0;
-                if(Parser.TokenToVariableType(nextToken) == VariableType.STRING) {
-                    value = 0;
-                } else if(Parser.TokenToVariableType(nextToken) == VariableType.INT){
-                    if(nextToken.getInt() == 0) value = 1;
-                    else value = 0; 
-                } else {
-                    value = 1;
-                }
-                return Token.new_LiteralNum(index, index, value);
+                return Token.new_LiteralNum(index, index, intFromBool(!BooleanFromToken(nextToken)));
             default:
                 break;
         }
