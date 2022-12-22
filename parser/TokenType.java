@@ -12,5 +12,7 @@ public enum TokenType {
     MULTIPLY,
     DIVIDE,
     MODULUS,
-    IF
+    IF,
+    NOT,
+    NULL
 }

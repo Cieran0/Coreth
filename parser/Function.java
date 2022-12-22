@@ -14,7 +14,7 @@ public class Function {
     private List<Token> tokens;
     private boolean isbuiltIn;
     private BuiltInFunction linkedBuiltInFunction;
-    private VariableType returnType = VariableType.NULL;
+    private VariableType returnType = VariableType.VOID;
     private String[] content;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
@@ -29,7 +29,7 @@ public class Function {
                 if(params.get(0).getInt() != 0) {
                     Parser.exitWithError("Write's first paramater must be 0, was given " + params.get(0).getInt(),-2);
                 }
-                System.out.println(params.get(1).getString());
+                System.out.print(params.get(1).getString().replace("\\n","\n"));
                 return null;
             }
         },List.of(VariableType.INT, VariableType.STRING));
@@ -163,11 +163,16 @@ public class Function {
                         break;
                 }
             }
-            for (Token token : tokens) {
-                token.printInfo();
-            }
             Simulator.SimulateFunction(this,paramNames.size());
         }
         return null;
+    }
+
+    public void printTokens() {
+        System.out.println("Function: " + name);
+        System.out.println("-----------------------");
+        for (Token token : tokens) {
+            token.printInfo(0);
+        }
     }
 }

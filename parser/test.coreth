@@ -1,9 +1,5 @@
 main() {
-    int x = 1
-    x = x * 10
-    printNumber(x)
-    x = 0
-    if(1) { printNumber(x) }
+    printAgain("Hello, World!\n")
 }
 
 printAgain(string s) {

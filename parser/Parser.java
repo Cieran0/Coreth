@@ -91,7 +91,7 @@ public class Parser {
             case LITERAL_STRING:
                 return VariableType.STRING;
             default:
-                return VariableType.NULL;
+                return VariableType.VOID;
         }
     }
 

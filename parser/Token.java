@@ -1,7 +1,9 @@
 package parser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class Token {
@@ -14,7 +16,7 @@ public class Token {
     private Function scope;
     private String variableName;
     private VariableType variableType;
-    private List<Token> params;
+    private List<List<Token>> params;
     private List<Token> blockTokens;
 
     private Token(TokenType type, String name, Integer lineNo, Integer charNo) {
@@ -53,7 +55,7 @@ public class Token {
         return t;
     }
 
-    public static Token new_FunctionCall(String name, Integer lineNo, Integer charNo, List<Token> params) {
+    public static Token new_FunctionCall(String name, Integer lineNo, Integer charNo, List<List<Token>> params, Function scope) {
         Token t = new Token(TokenType.FUNCTION_CALL, name, lineNo, charNo);
         t.params = params;
         return t;
@@ -93,8 +95,18 @@ public class Token {
 
     public static Token new_If(Integer lineNo, Integer charNo, List<Token> params, List<Token> ifTokens) {
         Token t = new Token(TokenType.IF, "IF", lineNo, charNo);
-        t.params=params;
+        t.params=List.of(params);
         t.blockTokens = ifTokens;
+        return t;
+    }
+
+    public static Token new_Not(Integer lineNo, Integer charNo) {
+        Token t = new Token(TokenType.NOT, "!", lineNo, charNo);
+        return t;
+    }
+
+    public static Token new_NULLToken() {
+        Token t = new Token(TokenType.NULL, "Empty Token", -1, -1);
         return t;
     }
 
@@ -105,11 +117,11 @@ public class Token {
         return false;
     }
 
-    private Integer getCharNo() {
+    public Integer getCharNo() {
         return this.charNo;
     }
 
-    private Integer getLineNo() {
+    public Integer getLineNo() {
         return this.lineNo;
     }
 
@@ -149,7 +161,7 @@ public class Token {
         return 0;
     }
 
-    public List<Token> getParams() {
+    public List<List<Token>> getParams() {
         return params;
     }
 
@@ -159,10 +171,30 @@ public class Token {
     }
     //End of shouldnt always work!
 
-    public void printInfo() {
-        System.out.println("Name: "  +this.name);
-        System.out.println("Type: "  +this.type);
-        System.out.println("Line: "  +this.lineNo);
-        System.out.println("Char: "  +this.charNo);
+    private void print(Integer indent, String name, Object value) {
+        System.out.println(" ".repeat(indent) + name + ": "  +value);
+    }
+
+    public void printInfo(Integer indent) {
+        print(indent,"Name",name);
+        print(indent,"Type",type);
+        print(indent,"Line",lineNo);
+        print(indent,"Char",charNo);
+        switch (type) {
+            case IF:
+            print(indent, "Block Tokens", "");
+            for (Token t : blockTokens) {
+                t.printInfo(indent+4);
+            };
+            case FUNCTION_CALL:
+            //print(indent, "Params", "");
+            //for (Token t : params) {
+            //    t.printInfo(indent+4);
+            //};
+            break;
+            default:
+            break;
+        }
+        if(indent == 0) System.out.println("-----------------------");
     }
 }
