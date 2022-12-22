@@ -17,6 +17,7 @@ public class Tokenizer {
 
     public static List<Token> tokenizeLine(String line, Function scope, Integer lineNo) {
         List<Token> tokens = new ArrayList<Token>();
+        line = extractIfs(tokens,line,lineNo,scope);
         line = extractFunctionCalls(tokens,line,lineNo,scope);
         line = extractStringLiterals(tokens,line,lineNo);
         line = extractNumberLiterals(tokens,line,lineNo);
@@ -25,6 +26,27 @@ public class Tokenizer {
         line = extractMaths(tokens,line,lineNo);
         extractVariableRefrence(tokens,line,lineNo,scope);
         return tokens;
+    }
+
+    private static String extractIfs(List<Token> tokens, String line, Integer lineNo, Function scope) {
+        String query = "(if)\\s*\\((.*?)\\)\\s\\{.*\\}";
+        for (String match : getMatches(line, query)) { 
+            System.out.println(match);
+            line = line.replace(match, emptyString(match.length()));
+            int paramStart = match.indexOf('(')+1;
+            int paramEnd = match.indexOf(')');
+            String paramString = match.substring(paramStart, paramEnd);
+            List<Token> paramTokens = new ArrayList<Token>();
+            paramTokens.addAll(Function.sortTokens(tokenizeLine(paramString,scope,lineNo)));
+            int tokensStart = match.indexOf('{')+1;
+            int tokensEnd = match.lastIndexOf('}');
+            String tokenString = match.substring(tokensStart, tokensEnd);
+            List<Token> tokenTokens = new ArrayList<Token>();
+            tokenTokens.addAll(Function.sortTokens(tokenizeLine(tokenString,scope,lineNo)));
+            tokens.add(Token.new_If(lineNo, lineNo, paramTokens,tokenTokens));
+            line.replace(match, emptyString(match.length()));
+        }
+        return line;
     }
 
     private static String extractFunctionCalls(List<Token> tokens, String line, Integer lineNo, Function scope) {

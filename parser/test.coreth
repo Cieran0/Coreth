@@ -2,8 +2,8 @@ main() {
     int x = 1
     x = x * 10
     printNumber(x)
-    x = x - 5 
-    printNumber(x)
+    x = 0
+    if(1) { printNumber(x) }
 }
 
 printAgain(string s) {

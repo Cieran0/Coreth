@@ -11,5 +11,6 @@ public enum TokenType {
     MINUS,
     MULTIPLY,
     DIVIDE,
-    MODULUS
+    MODULUS,
+    IF
 }

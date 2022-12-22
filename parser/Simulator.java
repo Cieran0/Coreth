@@ -1,18 +1,28 @@
 package parser;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Simulator {
 
     public static void SimulateFunction(Function f, int start) {
         List<Token> tokens = f.getTokens();
         for (int i = start; i < tokens.size(); i++) {
-            SimulateToken(i, f);
+            SimulateToken(i, f,null);
         }
     }
 
-    public static Token SimulateToken(Integer index, Function f) {
+    public static void SimulateBlock(Function f, List<Token> block) {
+        for (int i = 0; i < block.size(); i++) {
+            SimulateToken(i, f,Optional.of(block));
+        }
+    }
+
+    public static Token SimulateToken(Integer index, Function f, Optional<List<Token>> givenTokens) {
         List<Token> tokens = f.getTokens();
+        if(givenTokens != null) {
+            if(givenTokens.isPresent()) tokens = givenTokens.get();
+        }
         Token t = tokens.get(index);
         Variable var;
         Token nextToken;
@@ -35,7 +45,7 @@ public class Simulator {
             case VARIABLE_ASSIGNMENT:
                 previousToken = tokens.get(index-1);
                 var = previousToken.getVariable();
-                nextToken = SimulateToken(index+1, f);
+                nextToken = SimulateToken(index+1, f,null);
                 switch(var.getType()){
                     case INT:
                         var.setValue(nextToken.getInt());
@@ -55,8 +65,8 @@ public class Simulator {
             case DIVIDE:
             case MULTIPLY:
             case MODULUS:
-                previousToken = SimulateToken(index+1, f);
-                nextToken = SimulateToken(index+2, f);
+                previousToken = SimulateToken(index+1, f,null);
+                nextToken = SimulateToken(index+2, f,null);
                 switch(Parser.TokenToVariableType(previousToken)){
                     case INT:
                         switch(t.getType()) {
@@ -78,7 +88,11 @@ public class Simulator {
                         break;
                 }
                 break;
-            
+            case IF:
+                Token condition = SimulateToken(0, f,Optional.of(t.getParams()));
+                if(condition.getInt() != 0 ) {
+                    SimulateBlock(f, t.getBlockTokens());
+                }
             default:
                 break;
         }

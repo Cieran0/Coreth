@@ -15,6 +15,7 @@ public class Token {
     private String variableName;
     private VariableType variableType;
     private List<Token> params;
+    private List<Token> blockTokens;
 
     private Token(TokenType type, String name, Integer lineNo, Integer charNo) {
         this.type = type;
@@ -90,6 +91,13 @@ public class Token {
         return t;
     }
 
+    public static Token new_If(Integer lineNo, Integer charNo, List<Token> params, List<Token> ifTokens) {
+        Token t = new Token(TokenType.IF, "IF", lineNo, charNo);
+        t.params=params;
+        t.blockTokens = ifTokens;
+        return t;
+    }
+
     public boolean isBefore(Token otherToken) {
         if(this.lineNo < otherToken.getLineNo()) return true;
         if(this.lineNo > otherToken.getLineNo()) return false;
@@ -111,6 +119,10 @@ public class Token {
 
     public TokenType getType() {
         return this.type;
+    }
+
+    public List<Token> getBlockTokens() {
+        return blockTokens;
     }
 
     //Shouldnt always work!
