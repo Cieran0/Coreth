@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class Function {
     
@@ -12,13 +13,27 @@ public class Function {
     private List<String> paramNames;
     private List<Token> tokens;
     private boolean isbuiltIn;
-    private Consumer<List<Token>> linkedBuiltInFunction;
+    private BuiltInFunction linkedBuiltInFunction;
     private VariableType returnType = VariableType.NULL;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
     public HashMap<String, Variable> localVarMap = new HashMap<String, Variable>();
     public HashMap<String, VariableType> localNameVariableTypeMap = new HashMap<String, VariableType>(); 
+
+    public static void setUpMap() {
+        new Function("write", new BuiltInFunction() {
+            @Override
+            public Token run(List<Token> params) {
+                if(params.get(0).getInt() != 0) {
+                    Parser.exitWithError("Write's first paramater must be 0, was given " + params.get(0).getInt(),-2);
+                }
+                System.out.println(params.get(1).getString());
+                return null;
+            }
+        },List.of(VariableType.INT, VariableType.STRING));
+        
+    }
 
     public Function(String name) {
         this.name=name;
@@ -29,7 +44,7 @@ public class Function {
         funcMap.put(name, this);
     }
 
-    public Function(String name, Consumer<List<Token>> linkedBuiltInFunction, List<VariableType> expectedParams) {
+    public Function(String name, BuiltInFunction linkedBuiltInFunction, List<VariableType> expectedParams) {
         this.name=name;
         this.isbuiltIn = true;
         this.linkedBuiltInFunction = linkedBuiltInFunction;
@@ -104,10 +119,10 @@ public class Function {
         }
     }
 
-    public void execute(List<Token> params) {
+    public Token execute(List<Token> params) {
         if(isbuiltIn) {
             checkParams(params);
-            linkedBuiltInFunction.accept(params);
+            return linkedBuiltInFunction.run(params);
         } else {
             checkParams(params);
             for (int i=0; i < paramNames.size(); i++) {
@@ -126,5 +141,6 @@ public class Function {
 
             Simulator.SimulateFunction(this,paramNames.size());
         }
+        return null;
     }
 }

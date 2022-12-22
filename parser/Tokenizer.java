@@ -11,6 +11,8 @@ public class Tokenizer {
         return " ".repeat(size);
     }
 
+    // TODO: restructor how tokens are handled! maybe idk? right to left rather than left to right?
+
     public static List<Token> tokenizeLine(String line, Function scope, Integer lineNo) {
         List<Token> tokens = new ArrayList<Token>();
         line = extractFunctionCalls(tokens,line,lineNo,scope);
