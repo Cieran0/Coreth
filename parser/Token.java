@@ -162,6 +162,7 @@ public class Token {
     }
 
     public VariableType getVariableType() {
+        if(this.type == TokenType.VARIABLE_REFRENCE) return Variable.getVar(this.variableName, this.scope).getType();
         return this.variableType;
     }
 

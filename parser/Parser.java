@@ -61,7 +61,7 @@ public class Parser {
         }
         String content = newLines.substring(lines.indexOf(name), end+1);
         String sub = content.substring(content.indexOf("{")+1, content.lastIndexOf("}"));
-        Function f = new Function(name,sub.split("\n"),params);
+        Function f = new Function(name,sub,params);
         newLines = lines.replace(content, " ".repeat(content.length()));
         if(lines == newLines) return lines;
         newLines = ExtractFunction(newLines);

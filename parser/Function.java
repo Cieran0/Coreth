@@ -15,7 +15,7 @@ public class Function {
     private boolean isbuiltIn;
     private BuiltInFunction linkedBuiltInFunction;
     private VariableType returnType = VariableType.VOID;
-    private String[] content;
+    private String content;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
@@ -43,7 +43,7 @@ public class Function {
         },List.of(VariableType.INT));
     }
 
-    public Function(String name, String[] content, String paramString) {
+    public Function(String name, String content, String paramString) {
         this.name=name;
         this.tokens=new ArrayList<Token>();
         this.isbuiltIn = false;

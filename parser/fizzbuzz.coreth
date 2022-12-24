@@ -1,14 +1,22 @@
 main() {
-    int x = 0
+    int x = 1
     int max = 100
-    while( x - max + 1 ) { Fizz( x ) x = x + 1 } 
-}
-
-Fizz(int x) {
-    int fizzes = x % 3
-    int buzzes = x % 5
-    if(!fizzes) { write(0,"Fizz") }
-    if(!buzzes) { write(0,"Buzz") }
-    if(buzzes && fizzes) { printNumber(x) }
-    write(0,"\n")
+    int notFizz
+    int notBuzz
+    while( x - max + 1 ) 
+    { 
+        notFizz = x % 3
+        notBuzz = x % 5
+        if(!notFizz) { 
+            write(0,"Fizz")
+        }
+        if(!notBuzz) { 
+            write(0,"Buzz") 
+        }
+        if(notFizz && notBuzz) { 
+            printNumber(x)
+        }
+        write(0,"\n")
+        x = x + 1 
+    } 
 }

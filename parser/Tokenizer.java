@@ -1,11 +1,13 @@
 package parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class Tokenizer {
 
@@ -14,8 +16,6 @@ public class Tokenizer {
     }
 
     public static String tokenizeLine(List<Token> tokens, String line, Function scope, Integer lineNo) {
-        line = extractIfs(tokens,line,lineNo,scope);
-        line = extractWhiles(tokens,line,lineNo,scope);
         line = extractFunctionCalls(tokens,line,lineNo,scope);
         line = extractStringLiterals(tokens,line,lineNo);
         line = extractNumberLiterals(tokens,line,lineNo);
@@ -24,44 +24,6 @@ public class Tokenizer {
         line = extractMaths(tokens,line,lineNo);
         line = extractVariableRefrence(tokens,line,lineNo,scope);
         tokens = Function.sortTokens(tokens);
-        return line;
-    }
-
-    private static String extractWhiles(List<Token> tokens, String line, Integer lineNo, Function scope) {
-        String query = "(while)\\s*\\((.*?)\\)\\s\\{.*\\}";
-        for (String match : getMatches(line, query)) { 
-            int paramStart = match.indexOf('(')+1;
-            int paramEnd = match.indexOf(')');
-            String paramString = match.substring(paramStart, paramEnd);
-            List<Token> paramTokens = new ArrayList<Token>();
-            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
-            int tokensStart = match.indexOf('{')+1;
-            int tokensEnd = match.lastIndexOf('}');
-            String tokenString = match.substring(tokensStart, tokensEnd);
-            List<Token> tokenTokens = new ArrayList<Token>();
-            tokenString = tokenizeLine(tokenTokens,tokenString,scope,lineNo);
-            tokens.add(Token.new_While(lineNo, lineNo, paramTokens,tokenTokens));
-            line = replace(line, match);
-        }
-        return line;
-    }
-
-    private static String extractIfs(List<Token> tokens, String line, Integer lineNo, Function scope) {
-        String query = "(if)\\s*\\((.*?)\\)\\s\\{.*\\}";
-        for (String match : getMatches(line, query)) { 
-            int paramStart = match.indexOf('(')+1;
-            int paramEnd = match.indexOf(')');
-            String paramString = match.substring(paramStart, paramEnd);
-            List<Token> paramTokens = new ArrayList<Token>();
-            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
-            int tokensStart = match.indexOf('{')+1;
-            int tokensEnd = match.lastIndexOf('}');
-            String tokenString = match.substring(tokensStart, tokensEnd);
-            List<Token> tokenTokens = new ArrayList<Token>();
-            tokenizeLine(tokenTokens,tokenString,scope,lineNo);
-            tokens.add(Token.new_If(lineNo, lineNo, paramTokens,tokenTokens));
-            line = replace(line, match);
-        }
         return line;
     }
 
@@ -114,7 +76,7 @@ public class Tokenizer {
     }
 
     private static String[] getMatches(String line, String query) {
-        String[] matches = Pattern.compile(query)
+        String[] matches = Pattern.compile(query,Pattern.DOTALL)
         .matcher(line)
         .results()
         .map(MatchResult::group)
@@ -198,8 +160,63 @@ public class Tokenizer {
         return line;
     }
 
-    public static List<Token> tokenize(String[] lines, Function scope) {
+    public static Integer getLineNumber(Integer mindex, String lines) {
+        Integer index = lines.indexOf("\n", 0);
+        Integer count = 0;
+        while(index != -1) {
+            if(index > mindex) return count;
+            index = lines.indexOf("\n", index+1);
+            count++;
+        }
+        return -1;
+    }
+
+    // FIXME: blocks can't have more than one space between ')' and '{'
+    public static String extractBlocks(String lines,List<Token> tokens,Function scope) {
+        String query = "(while|if)\\s*\\((.*?)\\)\\s\\{.*\\}";
+        String[] matches = getMatches(lines, query);
+        while(matches.length > 0) { 
+            String match = matches[0];
+            match = matchBrackets(match);
+            Integer lineNo = getLineNumber(lines.indexOf(match),lines);
+            boolean isWhile = (match.charAt(0) == 'w');
+            int paramStart = match.indexOf('(')+1;
+            int paramEnd = match.indexOf(')');
+            String paramString = match.substring(paramStart, paramEnd);
+            List<Token> paramTokens = new ArrayList<Token>();
+            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
+            int tokensStart = match.indexOf('{')+1;
+            int tokensEnd = match.lastIndexOf('}');
+            String tokenString = match.substring(tokensStart, tokensEnd);
+            List<Token> tokenTokens = tokenize(tokenString, scope);
+            tokens.add((
+                (isWhile)? 
+                    Token.new_While(lineNo, lineNo, paramTokens,tokenTokens)
+                :
+                    Token.new_If(lineNo, lineNo, paramTokens,tokenTokens)
+            ));
+            lines = replace(lines, match);
+            matches = getMatches(lines, query);
+        }
+        return lines;
+    }
+
+    private static String matchBrackets(String match) {
+        Integer start = match.indexOf('{')+1;
+        Integer end = match.lastIndexOf('}');
+        Integer pos = 0;
+        Integer open = 1;
+        for (int i = start; i <= end && open > 0; i++) {
+            if(match.charAt(i) == '{') {open++;}
+            else if(match.charAt(i) == '}') {open--;}
+            pos = i;
+        }
+        return match.substring(0,pos+1);
+    }
+
+    public static List<Token> tokenize(String rawlines, Function scope) {
         List<Token> tokens = new ArrayList<Token>();
+        String[] lines = extractBlocks(rawlines, tokens, scope).split("\n");
         for (int i = 0; i < lines.length; i++) {
             tokenizeLine(tokens,lines[i],scope,i);
         }
