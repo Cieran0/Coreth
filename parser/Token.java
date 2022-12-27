@@ -1,53 +1,48 @@
 package parser;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public class Token {
 
     private TokenType type;
     private String name;
-    private Integer lineNo;
     private Integer charNo;
     private Object value;
     private Function scope;
     private String variableName;
     private VariableType variableType;
     private List<List<Token>> params;
-    private List<Token> blockTokens;
+    private List<List<Token>> blockTokens;
 
-    private Token(TokenType type, String name, Integer lineNo, Integer charNo) {
+    private Token(TokenType type, String name,  Integer charNo) {
         this.type = type;
         this.name = name;
-        this.lineNo = lineNo;
         this.charNo = charNo;
     }
 
-    public static Token new_LiteralString(Integer lineNo, Integer charNo, String value) {
-        Token t = new Token(TokenType.LITERAL_STRING,value,lineNo,charNo);
+    public static Token new_LiteralString( Integer charNo, String value) {
+        Token t = new Token(TokenType.LITERAL_STRING,value,charNo);
         t.value = value;
         return t;
     }
 
-    public static Token new_LiteralNum(Integer lineNo, Integer charNo, Integer value) {
-        Token t = new Token(TokenType.LITERAL_NUM, value.toString(), lineNo, charNo);
+    public static Token new_LiteralNum( Integer charNo, Integer value) {
+        Token t = new Token(TokenType.LITERAL_NUM, value.toString(),  charNo);
         t.value = value;
         return t;
     }
 
-    public static Token new_VariableRefrence(String name, Integer lineNo, Integer charNo, Function scope) {
-        Token t = new Token(TokenType.VARIABLE_REFRENCE, name, lineNo, charNo);
+    public static Token new_VariableRefrence(String name,  Integer charNo, Function scope) {
+        Token t = new Token(TokenType.VARIABLE_REFRENCE, name,  charNo);
         t.variableName = name;
         t.scope = scope;
         t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
         return t;
     }
 
-    public static Token new_VariableDeclaration(String name, Integer lineNo, Integer charNo, Function scope, VariableType variableType) {
-        Token t = new Token(TokenType.VARIABLE_DECLARATION, name, lineNo, charNo);
+    public static Token new_VariableDeclaration(String name,  Integer charNo, Function scope, VariableType variableType) {
+        Token t = new Token(TokenType.VARIABLE_DECLARATION, name,  charNo);
         t.variableName = name;
         t.variableType = variableType;
         t.scope = scope;
@@ -55,20 +50,20 @@ public class Token {
         return t;
     }
 
-    public static Token new_FunctionCall(String name, Integer lineNo, Integer charNo, List<List<Token>> params, Function scope) {
-        Token t = new Token(TokenType.FUNCTION_CALL, name, lineNo, charNo);
+    public static Token new_FunctionCall(String name,  Integer charNo, List<List<Token>> params, Function scope) {
+        Token t = new Token(TokenType.FUNCTION_CALL, name,  charNo);
         t.params = params;
         return t;
     }
 
-    public static Token new_VariableAssignment(Integer lineNo, Integer charNo) {
-        Token t = new Token(TokenType.VARIABLE_ASSIGNMENT, "Variable Assignment", lineNo, charNo);
+    public static Token new_VariableAssignment( Integer charNo) {
+        Token t = new Token(TokenType.VARIABLE_ASSIGNMENT, "Variable Assignment",  charNo);
         return t;
     }
 
     public static final Set<TokenType> MathsTokens = Set.of(TokenType.PLUS,TokenType.MINUS,TokenType.MULTIPLY,TokenType.DIVIDE,TokenType.MODULUS);        
 
-    public static Token new_Maths(Integer lineNo, Integer charNo, Character function) {
+    public static Token new_Maths( Integer charNo, Character function) {
         TokenType type = null;
         switch (function) {
             case '+':
@@ -90,44 +85,42 @@ public class Token {
                 Parser.exitWithError(function + " is not a valid maths function", 0);
                 break;
         }
-        Token t = new Token(type, function.toString(), lineNo, charNo);
+        Token t = new Token(type, function.toString(),  charNo);
         return t;
     }
 
-    public static Token new_If(Integer lineNo, Integer charNo, List<Token> params, List<Token> ifTokens) {
-        Token t = new Token(TokenType.IF, "IF", lineNo, charNo);
+    public static Token new_If( Integer charNo, List<Token> params, List<List<Token>> ifTokens) {
+        Token t = new Token(TokenType.IF, "IF",  charNo);
         t.params=List.of(params);
         t.blockTokens = ifTokens;
         return t;
     }
 
-    public static Token new_While(Integer lineNo, Integer charNo, List<Token> params, List<Token> whileTokens) {
-        Token t = new Token(TokenType.WHILE, "WHILE", lineNo, charNo);
+    public static Token new_While( Integer charNo, List<Token> params, List<List<Token>> whileTokens) {
+        Token t = new Token(TokenType.WHILE, "WHILE",  charNo);
         t.params=List.of(params);
         t.blockTokens = whileTokens;
         return t;
     }
 
-    public static Token new_Not(Integer lineNo, Integer charNo) {
-        Token t = new Token(TokenType.NOT, "!", lineNo, charNo);
+    public static Token new_Not( Integer charNo) {
+        Token t = new Token(TokenType.NOT, "!",  charNo);
         return t;
     }
 
     public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND);
 
-    public static Token new_And(Integer lineNo, Integer charNo) {
-        Token t = new Token(TokenType.AND, "&&", lineNo, charNo);
+    public static Token new_And( Integer charNo) {
+        Token t = new Token(TokenType.AND, "&&",  charNo);
         return t;
     }
 
     public static Token new_NULLToken() {
-        Token t = new Token(TokenType.NULL, "Empty Token", -1, -1);
+        Token t = new Token(TokenType.NULL, "Empty Token", -1);
         return t;
     }
 
     public boolean isBefore(Token otherToken) {
-        if(this.lineNo < otherToken.getLineNo()) return true;
-        if(this.lineNo > otherToken.getLineNo()) return false;
         if(this.charNo < otherToken.getCharNo()) return true;
         return false;
     }
@@ -136,9 +129,6 @@ public class Token {
         return this.charNo;
     }
 
-    public Integer getLineNo() {
-        return this.lineNo;
-    }
 
     public String getName() {
         return this.name;
@@ -148,7 +138,7 @@ public class Token {
         return this.type;
     }
 
-    public List<Token> getBlockTokens() {
+    public List<List<Token>> getBlockTokens() {
         return blockTokens;
     }
 
@@ -194,15 +184,14 @@ public class Token {
     public void printInfo(Integer indent) {
         print(indent,"Name",name);
         print(indent,"Type",type);
-        print(indent,"Line",lineNo);
         print(indent,"Char",charNo);
         switch (type) {
             case IF:
             case WHILE:
             print(indent, "Block Tokens", "");
-            for (Token t : blockTokens) {
-                t.printInfo(indent+4);
-            };
+            //for (Token t : blockTokens) {
+            //    t.printInfo(indent+4);
+            //};
             case FUNCTION_CALL:
             print(indent, "Params", "");
             for (List<Token> tk : params) {

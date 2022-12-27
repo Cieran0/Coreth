@@ -1,13 +1,9 @@
 package parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class Tokenizer {
 
@@ -15,19 +11,19 @@ public class Tokenizer {
         return " ".repeat(size);
     }
 
-    public static String tokenizeLine(List<Token> tokens, String line, Function scope, Integer lineNo) {
-        line = extractFunctionCalls(tokens,line,lineNo,scope);
-        line = extractStringLiterals(tokens,line,lineNo);
-        line = extractNumberLiterals(tokens,line,lineNo);
-        line = extractVariableDeclaration(tokens,line,lineNo,scope);
-        line = extractVariableAssigment(tokens,line,lineNo);
-        line = extractMaths(tokens,line,lineNo);
-        line = extractVariableRefrence(tokens,line,lineNo,scope);
-        tokens = Function.sortTokens(tokens);
+    public static String tokenizeLine(List<Token> tokens, String line, Function scope) {
+        line = extractFunctionCalls(tokens,line,scope);
+        line = extractStringLiterals(tokens,line);
+        line = extractNumberLiterals(tokens,line);
+        line = extractVariableDeclaration(tokens,line,scope);
+        line = extractVariableAssigment(tokens,line);
+        line = extractMaths(tokens,line);
+        line = extractVariableRefrence(tokens,line,scope);
+        tokens = Function.sortTokens(List.of(tokens)).get(0);
         return line;
     }
 
-    private static String extractFunctionCalls(List<Token> tokens, String line, Integer lineNo, Function scope) {
+    private static String extractFunctionCalls(List<Token> tokens, String line, Function scope) {
         String query = "(";
         String[] functionNames = Function.funcMap.keySet().toArray(new String[Function.funcMap.keySet().size()]);
         for (int i = 0; i < functionNames.length; i++) {
@@ -43,7 +39,7 @@ public class Tokenizer {
             //System.out.println(paramString);
             List<Token> paramTokens = new ArrayList<Token>();
             List<List<Token>> tokensToSimulate = new ArrayList<List<Token>>(); 
-            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
+            paramString = tokenizeLine(paramTokens, paramString, scope);
             List<Integer> indexes = new ArrayList<Integer>();
             int index = paramString.indexOf(',');
             while (index >= 0) {
@@ -69,7 +65,7 @@ public class Tokenizer {
                     tokensToSimulate.add(simTokens);
                 }
             }
-            tokens.add(Token.new_FunctionCall(name, lineNo, line.indexOf(match), tokensToSimulate, scope));
+            tokens.add(Token.new_FunctionCall(name, line.indexOf(match), tokensToSimulate, scope));
             line = replace(line, match);
         }
         return line;
@@ -88,25 +84,25 @@ public class Tokenizer {
         return line.replaceFirst(Pattern.quote(match), emptyString(match.length()));
     }
 
-    private static String extractStringLiterals(List<Token> tokens, String line, Integer lineNo) {
+    private static String extractStringLiterals(List<Token> tokens, String line) {
         for (String match : getMatches(line, "\"(.*?)\"")) {
             String value = match.substring(1,match.length()-1);
-            tokens.add(Token.new_LiteralString(lineNo, line.indexOf(match), value));
+            tokens.add(Token.new_LiteralString( line.indexOf(match), value));
             line = replace(line, match);
         }
         return line;
     }
 
-    private static String extractNumberLiterals(List<Token> tokens, String line, Integer lineNo) {
+    private static String extractNumberLiterals(List<Token> tokens, String line) {
         for (String match : getMatches(line, "-?\\d+")) {
-            tokens.add(Token.new_LiteralNum(lineNo, line.indexOf(match), Integer.parseInt(match)));
+            tokens.add(Token.new_LiteralNum( line.indexOf(match), Integer.parseInt(match)));
             line = replace(line, match);
         }
         return line;
     }
 
-    private static String extractVariableDeclaration(List<Token> tokens, String line, Integer lineNo, Function scope) {
-        for (String match : getMatches(line,"(string|int).\\w+")) {
+    private static String extractVariableDeclaration(List<Token> tokens, String line, Function scope) {
+        for (String match : getMatches(line,"(string|int)\\s\\w+")) {
             String[] matchSplit = match.split(" ");
             String typeString = matchSplit[0];
             String name = matchSplit[1];
@@ -116,45 +112,45 @@ public class Tokenizer {
             } else if(typeString.equals("int")) {
                 type = VariableType.INT;
             }
-            tokens.add(Token.new_VariableDeclaration(name,lineNo,line.indexOf(match),scope,type));
+            tokens.add(Token.new_VariableDeclaration(name,line.indexOf(match),scope,type));
             line = replace(line, match);
         }
         return line;
     }
     
-    private static String extractVariableAssigment(List<Token> tokens, String line, Integer lineNo) {
+    private static String extractVariableAssigment(List<Token> tokens, String line) {
         for (String match : getMatches(line,"=")) {
-            tokens.add(Token.new_VariableAssignment(lineNo,line.indexOf(match)));
+            tokens.add(Token.new_VariableAssignment(line.indexOf(match)));
             line = replace(line, match);
         }
         return line;
     }
 
-    private static String extractMaths(List<Token> tokens, String line, Integer lineNo) {
+    private static String extractMaths(List<Token> tokens, String line) {
         final Character[] mathsFunctions = {'+','-','*','\\','%'};
 
         for (Character c : mathsFunctions) {
             for (String match : getMatches(line,"\\"+c)) {
-                tokens.add(Token.new_Maths(lineNo,line.indexOf(match),c));
+                tokens.add(Token.new_Maths(line.indexOf(match),c));
                 line = replace(line, match);
             }
         }
 
         for (String match : getMatches(line, "\\!")) {
-            tokens.add(Token.new_Not(lineNo,line.indexOf(match)));
+            tokens.add(Token.new_Not(line.indexOf(match)));
             line = replace(line, match);
         }
 
         for (String match : getMatches(line, "\\&\\&")) {
-            tokens.add(Token.new_And(lineNo,line.indexOf(match)));
+            tokens.add(Token.new_And(line.indexOf(match)));
             line = replace(line, match);
         }
         return line;
     }
 
-    private static String extractVariableRefrence(List<Token> tokens, String line, Integer lineNo, Function scope) {
+    private static String extractVariableRefrence(List<Token> tokens, String line, Function scope) {
         for (String match : getMatches(line, "\\w+")) {
-            tokens.add(Token.new_VariableRefrence(match, lineNo, line.indexOf(match), scope));
+            tokens.add(Token.new_VariableRefrence(match, line.indexOf(match), scope));
             line = replace(line, match);
         }
         return line;
@@ -172,7 +168,7 @@ public class Tokenizer {
     }
 
     // FIXME: blocks can't have more than one space between ')' and '{'
-    public static String extractBlocks(String lines,List<Token> tokens,Function scope) {
+    public static String extractBlocks(String lines, List<List<Token>> tokenLines,Function scope) {
         String query = "(while|if)\\s*\\((.*?)\\)\\s\\{.*\\}";
         String[] matches = getMatches(lines, query);
         while(matches.length > 0) { 
@@ -184,16 +180,17 @@ public class Tokenizer {
             int paramEnd = match.indexOf(')');
             String paramString = match.substring(paramStart, paramEnd);
             List<Token> paramTokens = new ArrayList<Token>();
-            paramString = tokenizeLine(paramTokens, paramString, scope, lineNo);
+            paramString = tokenizeLine(paramTokens, paramString, scope);
             int tokensStart = match.indexOf('{')+1;
             int tokensEnd = match.lastIndexOf('}');
             String tokenString = match.substring(tokensStart, tokensEnd);
-            List<Token> tokenTokens = tokenize(tokenString, scope);
+            List<List<Token>> tokenTokens = tokenize(tokenString, scope);
+            List<Token> tokens = tokenLines.get(lineNo);
             tokens.add((
                 (isWhile)? 
-                    Token.new_While(lineNo, lineNo, paramTokens,tokenTokens)
+                    Token.new_While(0,paramTokens,tokenTokens)
                 :
-                    Token.new_If(lineNo, lineNo, paramTokens,tokenTokens)
+                    Token.new_If(0,paramTokens,tokenTokens)
             ));
             lines = replace(lines, match);
             matches = getMatches(lines, query);
@@ -214,13 +211,17 @@ public class Tokenizer {
         return match.substring(0,pos+1);
     }
 
-    public static List<Token> tokenize(String rawlines, Function scope) {
-        List<Token> tokens = new ArrayList<Token>();
-        String[] lines = extractBlocks(rawlines, tokens, scope).split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            tokenizeLine(tokens,lines[i],scope,i);
+    public static List<List<Token>> tokenize(String rawlines, Function scope) {
+        Integer lineCount = rawlines.split("\n").length;
+        List<List<Token>> tokenLines = new ArrayList<List<Token>>();
+        for (int i = 0; i < lineCount; i++) {
+            tokenLines.add(new ArrayList<Token>());
         }
-        return tokens;
+        String[] lines = extractBlocks(rawlines, tokenLines, scope).split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            tokenizeLine(tokenLines.get(i),lines[i],scope);
+        }
+        return tokenLines;
     }
 
 }

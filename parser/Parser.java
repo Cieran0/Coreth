@@ -3,11 +3,12 @@ package parser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Parser { 
+
+    public static Integer line = 0;
 
     public static String readLines(String path) {
         try {
@@ -61,7 +62,7 @@ public class Parser {
         }
         String content = newLines.substring(lines.indexOf(name), end+1);
         String sub = content.substring(content.indexOf("{")+1, content.lastIndexOf("}"));
-        Function f = new Function(name,sub,params);
+        new Function(name,sub,params,VariableType.VOID);
         newLines = lines.replace(content, " ".repeat(content.length()));
         if(lines == newLines) return lines;
         newLines = ExtractFunction(newLines);
@@ -70,6 +71,7 @@ public class Parser {
 
     public static void exitWithError(String msg, int errorNo) {
         System.out.println("Error: " + msg);
+        System.out.println("Line: " + line);
         Thread.dumpStack();
         System.exit(errorNo);
     }

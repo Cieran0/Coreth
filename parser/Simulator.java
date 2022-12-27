@@ -7,26 +7,24 @@ import java.util.Optional;
 public class Simulator {
 
     public static void SimulateFunction(Function f, int start) {
-        List<Token> tokens = f.getTokens();
-        for (int i = start; i < tokens.size(); i++) {
-            SimulateToken(i, f,null);
+        List<List<Token>> lines = f.getTokens();
+        for (List<Token> line : lines) {
+            SimulateLine(line, f);
         }
     }
 
     public static List<Token> SimulateParams(Function f, List<List<Token>> tokenLists) {
         List<Token> params = new ArrayList<Token>();
-        for (List<Token> tokens : tokenLists) {
-            if(tokens.isEmpty()) {  }
-            else {
-                params.add(SimulateToken(0, f, Optional.of(tokens)));
-            }
+        for (List<Token> line : tokenLists) {
+            params.add(SimulateToken(line,0,f));
         }
         return params;
     }
 
-    public static void SimulateBlock(Function f, List<Token> block) {
-        for (int i = 0; i < block.size(); i++) {
-            SimulateToken(i, f,Optional.of(block));
+    public static void SimulateBlock(Function f, List<List<Token>> block) {
+        for (List<Token> line : block) {
+            SimulateLine(line, f);
+            Parser.line++;
         }
     }
 
@@ -44,11 +42,7 @@ public class Simulator {
         return false;
     }
 
-    public static Token SimulateToken(Integer index, Function f, Optional<List<Token>> givenTokens) {
-        List<Token> tokens = f.getTokens();
-        if(givenTokens != null) {
-            if(givenTokens.isPresent()) tokens = givenTokens.get();
-        }
+    public static Token SimulateToken(List<Token> tokens, Integer index, Function scope) {
         Token t = tokens.get(index);
         Variable var;
         Token nextToken;
@@ -58,7 +52,7 @@ public class Simulator {
                 String fName = t.getName();
                 if(Function.funcMap.containsKey(fName)) {
                     Function func = Function.funcMap.get(fName);
-                    List<Token> params = SimulateParams(f,t.getParams());
+                    List<Token> params = SimulateParams(scope,t.getParams());
                     return func.execute(params);
                 } else {
                     Parser.exitWithError("No builtIn function called ["+fName+"]!",10);
@@ -66,50 +60,55 @@ public class Simulator {
                 break;
             case LITERAL_NUM:
             case LITERAL_STRING:
-            case VARIABLE_REFRENCE:
                 return t;
             case VARIABLE_ASSIGNMENT:
-                previousToken = tokens.get(index-1);
-                var = previousToken.getVariable();
-                nextToken = SimulateToken(index+1, f,Optional.of(tokens));
-                switch(var.getType()){
-                    case INT:
-                        var.setValue(nextToken.getInt());
-                        break;
-                    case STRING:
-                        var.setValue(nextToken.getString());
-                        break;
-                    default:
-                        break;
-                }
                 break;
             case VARIABLE_DECLARATION:
                 t.declareVariable();
-                break;
+            case VARIABLE_REFRENCE:
+                if(tokens.size() <= index+1) return t;
+                nextToken = tokens.get(index+1);
+                if(nextToken.getType() == TokenType.VARIABLE_ASSIGNMENT) {
+                    var = t.getVariable();
+                    nextToken = SimulateToken(tokens, index+2, scope);
+                    switch(var.getType()){
+                        case INT:
+                            var.setValue(nextToken.getInt());
+                            break;
+                        case STRING:
+                            var.setValue(nextToken.getString());
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    return t;
+                }
+                return t;
             case PLUS:
             case MINUS:
             case DIVIDE:
             case MULTIPLY:
             case MODULUS:
             case AND:
-                previousToken = SimulateToken(index+1, f,Optional.of(tokens));
-                nextToken = SimulateToken(index+2, f,Optional.of(tokens));
+                previousToken = SimulateToken(tokens,index+1,scope);
+                nextToken = SimulateToken(tokens,index+2,scope);
 
                 switch(Parser.TokenToVariableType(previousToken)){
                     case INT:
                         switch(t.getType()) {
                             case PLUS:
-                                return Token.new_LiteralNum(0,0,previousToken.getInt() + nextToken.getInt());
+                                return Token.new_LiteralNum(0,previousToken.getInt() + nextToken.getInt());
                             case MINUS:
-                                return Token.new_LiteralNum(0,0,previousToken.getInt() - nextToken.getInt());
+                                return Token.new_LiteralNum(0,previousToken.getInt() - nextToken.getInt());
                             case DIVIDE:
-                                return Token.new_LiteralNum(0,0,previousToken.getInt() / nextToken.getInt());
+                                return Token.new_LiteralNum(0,previousToken.getInt() / nextToken.getInt());
                             case MULTIPLY:
-                                return Token.new_LiteralNum(0,0,previousToken.getInt() * nextToken.getInt());
+                                return Token.new_LiteralNum(0,previousToken.getInt() * nextToken.getInt());
                             case MODULUS:
-                                return Token.new_LiteralNum(0,0,previousToken.getInt() % nextToken.getInt());
+                                return Token.new_LiteralNum(0,previousToken.getInt() % nextToken.getInt());
                             case AND:
-                                return Token.new_LiteralNum(0,0,intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
+                                return Token.new_LiteralNum(0,intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
                             default:
                                 break;
                         }
@@ -121,24 +120,33 @@ public class Simulator {
                 }
                 break;
             case IF:
-                nextToken = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
+                nextToken = SimulateParams(scope, t.getParams()).get(0);
                 if(nextToken.getInt() != 0 ) {
-                    SimulateBlock(f, t.getBlockTokens());
+                    SimulateBlock(scope, t.getBlockTokens());
                 }
                 break;
             case WHILE:
-                nextToken = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
+                nextToken = SimulateParams(scope, t.getParams()).get(0);
                 while(nextToken.getInt() != 0 ) {
-                    SimulateBlock(f, t.getBlockTokens());
-                    nextToken = SimulateToken(0, f,Optional.of(SimulateParams(f, t.getParams())));
+                    SimulateBlock(scope, t.getBlockTokens());
+                    nextToken = SimulateParams(scope, t.getParams()).get(0);
                 }
                 break;
             case NOT:
                 nextToken = tokens.get(index+1);
-                return Token.new_LiteralNum(index, index, intFromBool(!BooleanFromToken(nextToken)));
+                return Token.new_LiteralNum(index, intFromBool(!BooleanFromToken(nextToken)));
             default:
                 break;
         }
         return Token.new_NULLToken();
+    }
+
+    public static void SimulateLine(List<Token> line, Function scope) {
+        //System.out.println("EE");
+        //for (Token token : line) {
+        //    token.printInfo(0);
+        //}
+        if(line.size() < 1) return;
+        SimulateToken(line, 0, scope);
     }
 }
