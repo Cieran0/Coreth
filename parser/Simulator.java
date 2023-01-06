@@ -16,6 +16,7 @@ public class Simulator {
     public static List<Token> SimulateParams(Function f, List<List<Token>> tokenLists) {
         List<Token> params = new ArrayList<Token>();
         for (List<Token> line : tokenLists) {
+            if(line.size() < 1) continue;
             params.add(SimulateToken(line,0,f));
         }
         return params;
@@ -91,6 +92,12 @@ public class Simulator {
             case MULTIPLY:
             case MODULUS:
             case AND:
+            case EQUAL:
+            case NOTEQUAL:
+            case GREATER:
+            case LESSER:
+            case NOTLESSER:
+            case NOTGREATER:
                 previousToken = SimulateToken(tokens,index+1,scope);
                 nextToken = SimulateToken(tokens,index+2,scope);
 
@@ -109,6 +116,18 @@ public class Simulator {
                                 return Token.new_LiteralNum(0,previousToken.getInt() % nextToken.getInt());
                             case AND:
                                 return Token.new_LiteralNum(0,intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
+                            case EQUAL:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() == nextToken.getInt()));
+                            case NOTEQUAL:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() != nextToken.getInt()));
+                            case GREATER:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() > nextToken.getInt()));
+                            case LESSER:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() < nextToken.getInt()));
+                            case NOTLESSER:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() >= nextToken.getInt()));
+                            case NOTGREATER:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() <= nextToken.getInt()));
                             default:
                                 break;
                         }

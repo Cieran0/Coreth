@@ -46,7 +46,6 @@ public class Function {
         new Function("readLine", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                System.out.println("Hey!");
                 return Token.new_LiteralString(-1, sc.nextLine());
             }
         },VariableType.STRING,List.of());

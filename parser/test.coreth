@@ -1,3 +1,6 @@
 main() {
-    write(0,"Hello, World!\n")
+    if ( 1 == 0 )  {
+        string s = "Hey!"
+        write(0,s)
+    }
 }

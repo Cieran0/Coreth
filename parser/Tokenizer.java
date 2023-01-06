@@ -16,8 +16,8 @@ public class Tokenizer {
         line = extractStringLiterals(tokens,line);
         line = extractNumberLiterals(tokens,line);
         line = extractVariableDeclaration(tokens,line,scope);
-        line = extractVariableAssigment(tokens,line);
         line = extractMaths(tokens,line);
+        line = extractVariableAssigment(tokens,line);
         line = extractVariableRefrence(tokens,line,scope);
         tokens = Function.sortTokens(List.of(tokens)).get(0);
         return line;
@@ -128,10 +128,18 @@ public class Tokenizer {
 
     private static String extractMaths(List<Token> tokens, String line) {
         final Character[] mathsFunctions = {'+','-','*','\\','%'};
+        final String[] comparisonFunctions = {"==","!=",">=","<=",">","<"};
 
         for (Character c : mathsFunctions) {
             for (String match : getMatches(line,"\\"+c)) {
                 tokens.add(Token.new_Maths(line.indexOf(match),c));
+                line = replace(line, match);
+            }
+        }
+
+        for (String s : comparisonFunctions) {
+            for (String match : getMatches(line,s)) {
+                tokens.add(Token.new_Comparison(line.indexOf(match),s));
                 line = replace(line, match);
             }
         }
@@ -145,6 +153,7 @@ public class Tokenizer {
             tokens.add(Token.new_And(line.indexOf(match)));
             line = replace(line, match);
         }
+
         return line;
     }
 
@@ -167,9 +176,8 @@ public class Tokenizer {
         return -1;
     }
 
-    // FIXME: blocks can't have more than one space between ')' and '{'
     public static String extractBlocks(String lines, List<List<Token>> tokenLines,Function scope) {
-        String query = "(while|if)\\s*\\((.*?)\\)\\s\\{.*\\}";
+        String query = "(while|if)\\s*\\((.*?)\\)\\s*\\{.*\\}";
         String[] matches = getMatches(lines, query);
         while(matches.length > 0) { 
             String match = matches[0];

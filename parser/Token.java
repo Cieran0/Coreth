@@ -108,10 +108,37 @@ public class Token {
         return t;
     }
 
-    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND);
+    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND, TokenType.EQUAL, TokenType.NOTEQUAL, TokenType.GREATER, TokenType.LESSER, TokenType.NOTLESSER, TokenType.NOTGREATER);
 
     public static Token new_And( Integer charNo) {
         Token t = new Token(TokenType.AND, "&&",  charNo);
+        return t;
+    }
+
+    public static Token new_Comparison(Integer charNo, String comparison) { 
+        TokenType type = null;
+        if(comparison.equals("==")) {
+            type = TokenType.EQUAL;
+        }
+        else if(comparison.equals("!=")) {
+            type = TokenType.NOTEQUAL;
+        }
+        else if(comparison.equals(">")) {
+            type = TokenType.GREATER;
+        }
+        else if(comparison.equals("<")) {
+            type = TokenType.LESSER;
+        }
+        else if(comparison.equals(">=")) {
+            type = TokenType.NOTLESSER;
+        }
+        else if(comparison.equals("<=")) {
+            type = TokenType.NOTGREATER;
+        }
+        else {
+            Parser.exitWithError(comparison + " is not a valid comparison function", 0);
+        }
+        Token t = new Token(type, comparison,  charNo);
         return t;
     }
 
