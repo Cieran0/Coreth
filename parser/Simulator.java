@@ -92,6 +92,8 @@ public class Simulator {
             case MULTIPLY:
             case MODULUS:
             case AND:
+            case OR:
+            case ISFACTOR:
             case EQUAL:
             case NOTEQUAL:
             case GREATER:
@@ -114,8 +116,12 @@ public class Simulator {
                                 return Token.new_LiteralNum(0,previousToken.getInt() * nextToken.getInt());
                             case MODULUS:
                                 return Token.new_LiteralNum(0,previousToken.getInt() % nextToken.getInt());
+                            case ISFACTOR:
+                                return Token.new_LiteralNum(0,intFromBool(nextToken.getInt() % previousToken.getInt() == 0));
                             case AND:
                                 return Token.new_LiteralNum(0,intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
+                            case OR:
+                                return Token.new_LiteralNum(0,intFromBool(BooleanFromToken(previousToken) || BooleanFromToken(nextToken)));
                             case EQUAL:
                                 return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() == nextToken.getInt()));
                             case NOTEQUAL:
@@ -152,7 +158,7 @@ public class Simulator {
                 }
                 break;
             case NOT:
-                nextToken = tokens.get(index+1);
+                nextToken =  SimulateToken(tokens,index+1,scope);
                 return Token.new_LiteralNum(index, intFromBool(!BooleanFromToken(nextToken)));
             default:
                 break;

@@ -108,10 +108,15 @@ public class Token {
         return t;
     }
 
-    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND, TokenType.EQUAL, TokenType.NOTEQUAL, TokenType.GREATER, TokenType.LESSER, TokenType.NOTLESSER, TokenType.NOTGREATER);
+    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND, TokenType.OR, TokenType.ISFACTOR, TokenType.EQUAL, TokenType.NOTEQUAL, TokenType.GREATER, TokenType.LESSER, TokenType.NOTLESSER, TokenType.NOTGREATER);
 
     public static Token new_And( Integer charNo) {
         Token t = new Token(TokenType.AND, "&&",  charNo);
+        return t;
+    }
+
+    public static Token new_Or( Integer charNo) {
+        Token t = new Token(TokenType.OR, "||",  charNo);
         return t;
     }
 
@@ -134,6 +139,9 @@ public class Token {
         }
         else if(comparison.equals("<=")) {
             type = TokenType.NOTGREATER;
+        } 
+        else if (comparison.equals("*?=")) {
+            type = TokenType.ISFACTOR;
         }
         else {
             Parser.exitWithError(comparison + " is not a valid comparison function", 0);

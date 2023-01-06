@@ -130,6 +130,11 @@ public class Tokenizer {
         final Character[] mathsFunctions = {'+','-','*','\\','%'};
         final String[] comparisonFunctions = {"==","!=",">=","<=",">","<"};
 
+        for (String match : getMatches(line, "\\*\\?\\=")) {
+            tokens.add(Token.new_Comparison(line.indexOf(match),"*?="));
+            line = replace(line, match);
+        }
+
         for (Character c : mathsFunctions) {
             for (String match : getMatches(line,"\\"+c)) {
                 tokens.add(Token.new_Maths(line.indexOf(match),c));
@@ -151,6 +156,11 @@ public class Tokenizer {
 
         for (String match : getMatches(line, "\\&\\&")) {
             tokens.add(Token.new_And(line.indexOf(match)));
+            line = replace(line, match);
+        }
+
+        for (String match : getMatches(line, "\\|\\|")) {
+            tokens.add(Token.new_Or(line.indexOf(match)));
             line = replace(line, match);
         }
 

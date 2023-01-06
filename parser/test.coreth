@@ -1,6 +1,7 @@
 main() {
-    if ( 1 == 0 )  {
-        string s = "Hey!"
+    int x = 5 % 5
+    if ( x == 0 )  {
+        string s = "Hey!\n"
         write(0,s)
     }
 }

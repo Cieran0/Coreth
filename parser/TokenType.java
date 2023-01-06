@@ -16,11 +16,13 @@ public enum TokenType {
     WHILE,
     NOT,
     AND,
+    OR,
     EQUAL,
     NOTEQUAL,
     GREATER,
     LESSER,
     NOTLESSER,
     NOTGREATER,
+    ISFACTOR,
     NULL
 }

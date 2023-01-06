@@ -1,19 +1,19 @@
 main() {
     int x = 1
     int max = 100
-    int notFizz
-    int notBuzz
-    while( x - max + 1 ) 
+    int Either
+    while( x <= max ) 
     { 
-        notFizz = x % 3
-        notBuzz = x % 5
-        if(!notFizz) { 
+        Either = 0
+        if(3 *?= x) { 
             write(0,"Fizz")
+            Either = 1
         }
-        if(!notBuzz) { 
+        if(5 *?= x) { 
             write(0,"Buzz") 
+            Either = 1
         }
-        if(notFizz && notBuzz) { 
+        if(!Either) { 
             printNumber(x)
         }
         write(0,"\n")

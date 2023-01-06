@@ -173,6 +173,9 @@ public class Function {
                         break;
                 }
             }
+            if(Parser.printTokens) {
+                printTokens();
+            }
             Simulator.SimulateFunction(this,paramNames.size());
         }
         return null;

@@ -10,6 +10,8 @@ public class Parser {
 
     public static Integer line = 0;
 
+    public static final Boolean printTokens = false;
+
     public static String readLines(String path) {
         try {
             List<String> sarry = Files.readAllLines(Paths.get(path));
