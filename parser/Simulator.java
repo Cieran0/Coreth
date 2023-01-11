@@ -148,12 +148,20 @@ public class Simulator {
                             default:
                                 break;
                         }
-                    case STRING:
-                        //var.setValue(valueToken.getString());
                         break;
+                    case STRING:
+                        switch(t.getType()) {
+                            case PLUS:
+                                return Token.new_LiteralString(0, previousToken.getString() + nextToken.getString());
+                            case EQUAL:
+                                return Token.new_LiteralNum(0,intFromBool(previousToken.getString().equals(nextToken.getString())));
+                            default:
+                                break;
+                        }
                     default:
                         break;
                 }
+                Parser.exitWithError("Invalid Operation on type " + Parser.TokenToVariableType(previousToken), -77);
                 break;
             case IF:
                 nextToken = SimulateParams(scope, t.getParams()).get(0);

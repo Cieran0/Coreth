@@ -6,5 +6,5 @@ void main() {
 }
 
 string hello() {
-    return "Hello\n"
+    return "Hello" + " There\n"
 }
