@@ -30,13 +30,13 @@ public class Tokenizer {
             if(i != 0) query+="|";
             query += functionNames[i];
         }
-        query += ")\\((.*?)\\)";
+        query += ")";
         for (String match : getMatches(line, query)) {
-            int paramStart = match.indexOf('(')+1;
-            int paramEnd = match.indexOf(')');
-            String name = match.substring(0,paramStart-1);
-            String paramString = match.substring(paramStart, paramEnd);
-            //System.out.println(paramString);
+            if(!line.contains(match)) continue;
+            match = line.substring(line.indexOf(match), line.lastIndexOf(")")+1);
+            String paramString = matchBrackets(match, '(');
+            int nameEnd = (paramString.length()>0)? match.indexOf(paramString)-1 : match.indexOf('(');
+            String name = match.substring(0, nameEnd);
             List<Token> paramTokens = new ArrayList<Token>();
             List<List<Token>> tokensToSimulate = new ArrayList<List<Token>>(); 
             paramString = tokenizeLine(paramTokens, paramString, scope);
@@ -87,7 +87,7 @@ public class Tokenizer {
     private static String extractStringLiterals(List<Token> tokens, String line) {
         for (String match : getMatches(line, "\"(.*?)\"")) {
             String value = match.substring(1,match.length()-1);
-            tokens.add(Token.new_LiteralString( line.indexOf(match), value));
+            tokens.add(Token.new_LiteralString( line.indexOf(match), value.replace("\\n", "\n")));
             line = replace(line, match);
         }
         return line;
@@ -191,18 +191,13 @@ public class Tokenizer {
         String[] matches = getMatches(lines, query);
         while(matches.length > 0) { 
             String match = matches[0];
-            match = matchBrackets(match);
-            Integer lineNo = getLineNumber(lines.indexOf(match),lines);
-            boolean isWhile = (match.charAt(0) == 'w');
-            int paramStart = match.indexOf('(')+1;
-            int paramEnd = match.indexOf(')');
-            String paramString = match.substring(paramStart, paramEnd);
+            String content = matchBrackets(match,'{');
+            String params = matchBrackets(match, '(');
+            Integer lineNo = getLineNumber(lines.indexOf(content),lines);
+            boolean isWhile = (content.charAt(0) == 'w');
             List<Token> paramTokens = new ArrayList<Token>();
-            paramString = tokenizeLine(paramTokens, paramString, scope);
-            int tokensStart = match.indexOf('{')+1;
-            int tokensEnd = match.lastIndexOf('}');
-            String tokenString = match.substring(tokensStart, tokensEnd);
-            List<List<Token>> tokenTokens = tokenize(tokenString, scope);
+            tokenizeLine(paramTokens, params, scope);
+            List<List<Token>> tokenTokens = tokenize(content, scope);
             List<Token> tokens = tokenLines.get(lineNo);
             tokens.add((
                 (isWhile)? 
@@ -216,17 +211,29 @@ public class Tokenizer {
         return lines;
     }
 
-    private static String matchBrackets(String match) {
-        Integer start = match.indexOf('{')+1;
-        Integer end = match.lastIndexOf('}');
-        Integer pos = 0;
+    private static String matchBrackets(String match, char openBracket) {
+        char closeBracket=' ';
+        switch(openBracket) {
+            case '{':
+                closeBracket = '}';
+                break;
+            case '(':
+                closeBracket = ')';
+                break;
+            case '[':
+                closeBracket = ']';
+                break;
+        }
+        Integer start = match.indexOf(openBracket)+1;
+        Integer end = match.lastIndexOf(closeBracket);
+        Integer pos = -1;
         Integer open = 1;
         for (int i = start; i <= end && open > 0; i++) {
-            if(match.charAt(i) == '{') {open++;}
-            else if(match.charAt(i) == '}') {open--;}
+            if(match.charAt(i) == openBracket) {open++;}
+            else if(match.charAt(i) == closeBracket) {open--;}
             pos = i;
         }
-        return match.substring(0,pos+1);
+        return match.substring(start,pos);
     }
 
     public static List<List<Token>> tokenize(String rawlines, Function scope) {

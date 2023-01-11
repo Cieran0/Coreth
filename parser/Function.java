@@ -30,7 +30,7 @@ public class Function {
                 if(params.get(0).getInt() != 0) {
                     Parser.exitWithError("Write's first paramater must be 0, was given " + params.get(0).getInt(),-2);
                 }
-                System.out.print(params.get(1).getString().replace("\\n","\n"));
+                System.out.print(params.get(1).getString());
                 return Token.new_NULLToken();
             }
         },VariableType.VOID,List.of(VariableType.INT, VariableType.STRING));
@@ -73,9 +73,7 @@ public class Function {
     }
 
     public void expectedParamsFromString(String line) {
-        //System.out.println(this.name + "(" + line + ")");
         if(line.isBlank()) return;
-        int pos = 0;
         for (String param : line.split(",")) {
             String[] split = param.trim().split(" ");
             String typeString = split[0].trim();
@@ -91,7 +89,6 @@ public class Function {
             }
             localVarMap.put(name, new Variable(name, type));
             this.expectedParams.add(type);
-            pos++;
         }
     }
 
