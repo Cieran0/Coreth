@@ -18,6 +18,7 @@ public class Tokenizer {
         line = extractVariableDeclaration(tokens,line,scope);
         line = extractMaths(tokens,line);
         line = extractVariableAssigment(tokens,line);
+        line = extractReturns(tokens,line);
         line = extractVariableRefrence(tokens,line,scope);
         tokens = Function.sortTokens(List.of(tokens)).get(0);
         return line;
@@ -106,12 +107,7 @@ public class Tokenizer {
             String[] matchSplit = match.split(" ");
             String typeString = matchSplit[0];
             String name = matchSplit[1];
-            VariableType type = VariableType.VOID;
-            if(typeString.equals("string")) {
-                type = VariableType.STRING;
-            } else if(typeString.equals("int")) {
-                type = VariableType.INT;
-            }
+            VariableType type = parser.Parser.stringVariableTypeMap.get(typeString);
             tokens.add(Token.new_VariableDeclaration(name,line.indexOf(match),scope,type));
             line = replace(line, match);
         }
@@ -247,6 +243,14 @@ public class Tokenizer {
             tokenizeLine(tokenLines.get(i),lines[i],scope);
         }
         return tokenLines;
+    }
+
+    public static String extractReturns(List<Token> tokens, String line) {
+        for (String match : getMatches(line, "return")) {
+            tokens.add(Token.new_Return(line.indexOf(match)));
+            line = replace(line, match);
+        }
+        return line;
     }
 
 }

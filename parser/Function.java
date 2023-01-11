@@ -155,27 +155,25 @@ public class Function {
         if(isbuiltIn) {
             checkParams(params);
             return linkedBuiltInFunction.run(params);
-        } else {
-            //printTokens();
-            checkParams(params);
-            for (int i=0; i < paramNames.size(); i++) {
-                switch (expectedParams.get(i)) {
-                    case INT:
-                        localVarMap.get(paramNames.get(i)).setValue(params.get(i).getInt());
-                        break;
-                    case STRING:
-                        localVarMap.get(paramNames.get(i)).setValue(params.get(i).getString());
-                        break;
-                    default:
-                        break;
-                }
+        } 
+
+        checkParams(params);
+        for (int i=0; i < paramNames.size(); i++) {
+            switch (expectedParams.get(i)) {
+                case INT:
+                    localVarMap.get(paramNames.get(i)).setValue(params.get(i).getInt());
+                    break;
+                case STRING:
+                    localVarMap.get(paramNames.get(i)).setValue(params.get(i).getString());
+                    break;
+                default:
+                    break;
             }
-            if(Parser.printTokens) {
-                printTokens();
-            }
-            Simulator.SimulateFunction(this,paramNames.size());
         }
-        return null;
+        if(Parser.printTokens) {
+            printTokens();
+        }
+        return Simulator.SimulateFunction(this,paramNames.size());
     }
 
     public void printTokens() {

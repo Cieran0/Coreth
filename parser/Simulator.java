@@ -5,11 +5,22 @@ import java.util.List;
 
 public class Simulator {
 
-    public static void SimulateFunction(Function f, int start) {
+    private static boolean exitFunction = false;
+
+    public static Token SimulateLine(List<Token> line, Function scope) {
+        if(line.size() < 1) return Token.new_NULLToken();
+        return SimulateToken(line, 0, scope);
+    }
+
+    public static Token SimulateFunction(Function f, int start) {
+        exitFunction = false;
         List<List<Token>> lines = f.getTokens();
+        Token returnToken = null;
         for (List<Token> line : lines) {
-            SimulateLine(line, f);
+            returnToken = SimulateLine(line,f);
+            if(exitFunction) break;
         }
+        return returnToken;
     }
 
     public static List<Token> SimulateParams(Function f, List<List<Token>> tokenLists) {
@@ -24,6 +35,7 @@ public class Simulator {
     public static void SimulateBlock(Function f, List<List<Token>> block) {
         for (List<Token> line : block) {
             SimulateLine(line, f);
+            if(exitFunction) break;
             Parser.line++;
         }
     }
@@ -157,20 +169,15 @@ public class Simulator {
                 }
                 break;
             case NOT:
-                nextToken =  SimulateToken(tokens,index+1,scope);
+                nextToken = SimulateToken(tokens,index+1,scope);
                 return Token.new_LiteralNum(index, intFromBool(!BooleanFromToken(nextToken)));
+            case RETURN:
+                exitFunction = true;
+                if(scope.getReturnType() == VariableType.VOID) return Token.new_NULLToken();
+                return SimulateToken(tokens,index+1,scope);
             default:
                 break;
         }
         return Token.new_NULLToken();
-    }
-
-    public static void SimulateLine(List<Token> line, Function scope) {
-        //System.out.println("EE");
-        //for (Token token : line) {
-        //    token.printInfo(0);
-        //}
-        if(line.size() < 1) return;
-        SimulateToken(line, 0, scope);
     }
 }

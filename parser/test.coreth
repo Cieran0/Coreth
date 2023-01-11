@@ -1,7 +1,10 @@
-main() {
+void main() {
     int x = 5 % 5
     if ( x == 0 )  {
-        write(0,readLine())
+        write(0,hello())
     }
 }
 
+string hello() {
+    return "Hello\n"
+}

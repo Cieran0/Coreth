@@ -3,6 +3,7 @@ package parser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,12 @@ public class Parser {
     public static Integer line = 0;
 
     public static final Boolean printTokens = false;
+
+    public static HashMap<String,VariableType> stringVariableTypeMap = new HashMap<String,VariableType>() {{
+        put("void",VariableType.VOID);
+        put("string",VariableType.STRING);
+        put("int",VariableType.INT);
+    }};
 
     public static String readLines(String path) {
         try {
@@ -42,8 +49,7 @@ public class Parser {
                 function.addTokensFromContent();
             }
         }
-        if(mainFunction != null) mainFound = true;
-        if(!mainFound) {
+        if(mainFunction == null) {
             exitWithError("main function not found", 1);
         }
         mainFunction.execute(List.of());
@@ -55,16 +61,18 @@ public class Parser {
         int open = 1;
         int start = lines.indexOf('{')+1;
         int end = 0;
-        String name = lines.substring(0, lines.indexOf('(')).trim();
+        String[] nameAndType = lines.substring(0, lines.indexOf('(')).trim().split(" ");
+        String name = nameAndType[1];
+        VariableType returnType = stringVariableTypeMap.get(nameAndType[0]);
         String params = lines.substring(lines.indexOf('(')+1, lines.indexOf(')'));
         for(int i = start; i < lines.length() && open > 0; i++) {
             if(lines.charAt(i) == '{') open++;
             else if(lines.charAt(i) == '}') open--;
             end = i;
         }
-        String content = newLines.substring(lines.indexOf(name), end+1);
+        String content = newLines.substring(lines.indexOf(nameAndType[0]), end+1);
         String sub = content.substring(content.indexOf("{")+1, content.lastIndexOf("}"));
-        new Function(name,sub,params,VariableType.VOID);
+        new Function(name,sub,params,returnType);
         newLines = lines.replace(content, " ".repeat(content.length()));
         if(lines == newLines) return lines;
         newLines = ExtractFunction(newLines);

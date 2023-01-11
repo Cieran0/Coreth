@@ -150,6 +150,11 @@ public class Token {
         return t;
     }
 
+    public static Token new_Return(Integer charNo) {
+        Token t = new Token(TokenType.RETURN, "return", charNo);
+        return t;
+    }
+
     public static Token new_NULLToken() {
         Token t = new Token(TokenType.NULL, "Empty Token", -1);
         return t;

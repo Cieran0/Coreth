@@ -24,5 +24,6 @@ public enum TokenType {
     NOTLESSER,
     NOTGREATER,
     ISFACTOR,
+    RETURN,
     NULL
 }
