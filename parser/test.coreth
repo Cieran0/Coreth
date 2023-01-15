@@ -1,9 +1,6 @@
 void main() {
-        write(0,"Test\n")
-        write(0,hello())
-        write(0,hello())
-}
-
-string hello() {
-    return "Hello" + " There\n"
+    int ptr = pointerFromString("test.txt")
+    int fd = syscallTwo(2,ptr)
+    int text = pointerFromString("TEST!")
+    syscallFour(1, fd, text, 5)
 }

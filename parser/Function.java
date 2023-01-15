@@ -15,7 +15,8 @@ public class Function {
     private BuiltInFunction linkedBuiltInFunction;
     private VariableType returnType = VariableType.VOID;
     private String content;
-
+    public static List<String> stringPointers = new ArrayList<String>();
+    
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
     public HashMap<String, Variable> localVarMap = new HashMap<String, Variable>();
@@ -49,6 +50,24 @@ public class Function {
                 return Token.new_LiteralString(-1, sc.nextLine());
             }
         },VariableType.STRING,List.of());
+
+        new Function("pointerFromString", new BuiltInFunction() {
+            @Override
+            public Token run(List<Token> params) {
+                int ptr = stringPointers.indexOf(params.get(0).getString());
+                if(ptr < 0) {
+                    ptr = stringPointers.size();
+                    stringPointers.add(params.get(0).getString());
+                }
+                return Token.new_LiteralNum(-1, ptr);
+            }
+        }, VariableType.INT, List.of(VariableType.STRING));
+
+        new Function("syscallTwo", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT));
+        new Function("syscallThree", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT));
+        new Function("syscallFour", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
+        new Function("syscallFive", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
+        new Function("syscallSix", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
     }
 
     public Function(String name, String content, String paramString, VariableType returnType) {
