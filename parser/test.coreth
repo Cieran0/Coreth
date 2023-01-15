@@ -1,8 +1,7 @@
 void main() {
-    int x = 5 % 5
-    if ( x == 0 )  {
+        write(0,"Test\n")
         write(0,hello())
-    }
+        write(0,hello())
 }
 
 string hello() {

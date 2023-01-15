@@ -20,6 +20,7 @@ public class Simulator {
             returnToken = SimulateLine(line,f);
             if(exitFunction) break;
         }
+        exitFunction = false;
         return returnToken;
     }
 

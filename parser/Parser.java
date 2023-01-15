@@ -36,7 +36,6 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        boolean mainFound = false;
         String path = (args.length > 0)? args[0] : "test.coreth";
         Function.setUpBuiltInFunctions();
 
