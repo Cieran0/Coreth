@@ -52,7 +52,7 @@ public class Syscalls {
             int fd = params.get(1).getInt();
             String text = Function.stringPointers.get(params.get(0).getInt());
             int count = params.get(3).getInt();
-            FileManagement.writeToFile(text.substring(0, count-1), fd);
+            FileManagement.writeToFile(text.substring(0, count), fd);
             return Token.new_NULLToken();
         }
     };
