@@ -25,16 +25,6 @@ public class Function {
     public static Scanner sc = new Scanner(System.in);
 
     public static void setUpBuiltInFunctions() {
-        new Function("write", new BuiltInFunction() {
-            @Override
-            public Token run(List<Token> params) {
-                if(params.get(0).getInt() != 0) {
-                    Parser.exitWithError("Write's first paramater must be 0, was given " + params.get(0).getInt(),-2);
-                }
-                System.out.print(params.get(1).getString());
-                return Token.new_NULLToken();
-            }
-        },VariableType.VOID,List.of(VariableType.INT, VariableType.STRING));
 
         new Function("printNumber", new BuiltInFunction() {
             @Override
@@ -60,6 +50,13 @@ public class Function {
                     stringPointers.add(params.get(0).getString());
                 }
                 return Token.new_LiteralNum(-1, ptr);
+            }
+        }, VariableType.INT, List.of(VariableType.STRING));
+
+        new Function("strLen", new BuiltInFunction() {
+            @Override
+            public Token run(List<Token> params) {
+                return Token.new_LiteralNum(-1, params.get(0).getString().length());
             }
         }, VariableType.INT, List.of(VariableType.STRING));
 

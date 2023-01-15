@@ -50,9 +50,10 @@ public class Syscalls {
         @Override
         public Token run(List<Token> params) {
             int fd = params.get(1).getInt();
-            String text = Function.stringPointers.get(params.get(0).getInt());
             int count = params.get(3).getInt();
-            FileManagement.writeToFile(text.substring(0, count), fd);
+            String text = Function.stringPointers.get(params.get(2).getInt()).substring(0,count);
+            if(fd == 0) System.out.print(text);
+            else FileManagement.writeToFile(text, fd);
             return Token.new_NULLToken();
         }
     };

@@ -1,6 +1,9 @@
 void main() {
-    int ptr = pointerFromString("test.txt")
-    int fd = syscallTwo(2,ptr)
-    int text = pointerFromString("TEST!")
-    syscallFour(1, fd, text, 5)
+    print("Hello World!\n")
+}
+
+void print(string text) {
+    int len = strLen(text)
+    int ptr = pointerFromString(text)
+    syscallFour( 1, 0, ptr, len )
 }
