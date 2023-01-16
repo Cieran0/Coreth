@@ -43,7 +43,7 @@ public class FileManagement {
     }
 
     public static String readFromFile(int fdID, int size) {
-        if(fdID < 0 || fdID >= fds.size()) {
+        if(fdID < 0 || fdID > fds.size()) {
             Parser.exitWithError("Tried reading from a file that has not been opened", fdID);
         }
 
@@ -70,7 +70,7 @@ public class FileManagement {
     }
 
     public static void Close(int fdID) {
-        if(fdID < 0 || fdID >= fds.size()) {
+        if(fdID < 0 || fdID > fds.size()) {
             Parser.exitWithError("Tried closing a file that has not been opened", fdID);
         }
 

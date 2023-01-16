@@ -1,0 +1,22 @@
+
+void print(string text) {
+    int len = strLen(text)
+    int ptr = pointerFromString(text)
+    syscallFour( 1, 0, ptr, len )
+}
+
+void close(int fd) {
+    syscallTwo(3,fd)
+}
+
+int open(string path) {
+    return syscallTwo(2, pointerFromString(path) )
+}
+
+void read(int fd, int buff, int len) {
+    syscallFour(0, fd, buff, len)
+}
+
+void write(int fd, int buff, int len) {
+    syscallFour(1, fd, buff, len)
+}

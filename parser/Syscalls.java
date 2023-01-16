@@ -42,7 +42,12 @@ public class Syscalls {
         @Override
         public Token run(List<Token> params) {
             //TODO: implement read
-            return syscallNotSimulatedYet.run(params);
+            int fd = params.get(1).getInt();
+            int ptr = params.get(2).getInt();
+            int count = params.get(3).getInt();
+            String buff = Function.stringPointers.get(ptr);
+            Function.stringPointers.set(ptr, FileManagement.readFromFile(fd,count)); 
+            return Token.new_LiteralNum(-1, 0);
         }
     };
 

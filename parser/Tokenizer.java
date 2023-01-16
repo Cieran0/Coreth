@@ -72,7 +72,7 @@ public class Tokenizer {
         return line;
     }
 
-    private static String[] getMatches(String line, String query) {
+    public static String[] getMatches(String line, String query) {
         String[] matches = Pattern.compile(query,Pattern.DOTALL)
         .matcher(line)
         .results()
@@ -81,7 +81,7 @@ public class Tokenizer {
         return matches;
     } 
 
-    private static String replace(String line, String match) {
+    public static String replace(String line, String match) {
         return line.replaceFirst(Pattern.quote(match), emptyString(match.length()));
     }
 

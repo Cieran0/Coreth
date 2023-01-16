@@ -53,6 +53,14 @@ public class Function {
             }
         }, VariableType.INT, List.of(VariableType.STRING));
 
+
+        new Function("stringFromPointer", new BuiltInFunction() {
+            @Override
+            public Token run(List<Token> params) {
+                return Token.new_LiteralString(-1, stringPointers.get(params.get(0).getInt()));
+            }
+        }, VariableType.STRING, List.of(VariableType.INT));
+
         new Function("strLen", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {

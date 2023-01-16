@@ -41,6 +41,13 @@ public class Parser {
         Function.setUpBuiltInFunctions();
 
         String lines = readLines(path);
+        for (String line : lines.split("\n")) {
+            if(!line.contains("#include")) continue;
+            String filePath = line.substring(line.indexOf("\"")+1, line.lastIndexOf("\""));
+            String fileLines = readLines(filePath);
+            lines = lines.replace(line+"\n", fileLines);
+        }
+
         lines = ExtractFunction(lines);
         
         Function mainFunction = Function.funcMap.get("main");

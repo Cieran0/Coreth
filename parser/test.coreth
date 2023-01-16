@@ -1,9 +1,12 @@
-void main() {
-    print("Hello World!\n")
-}
+#include "stdlib.coreth"
 
-void print(string text) {
-    int len = strLen(text)
-    int ptr = pointerFromString(text)
-    syscallFour( 1, 0, ptr, len )
+void main() {
+    string bfString = "12345\n"
+    int len = strLen(bfString)
+    int buff = pointerFromString(bfString)
+    int fd = open("test.txt")
+    write(fd,buff,len)
+    read(fd, buff, len)
+    close(fd)
+    print(stringFromPointer(buff))
 }
