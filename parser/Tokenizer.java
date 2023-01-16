@@ -190,7 +190,7 @@ public class Tokenizer {
             String content = matchBrackets(match,'{');
             String params = matchBrackets(match, '(');
             Integer lineNo = getLineNumber(lines.indexOf(content),lines);
-            boolean isWhile = (content.charAt(0) == 'w');
+            boolean isWhile = (match.charAt(0) == 'w');
             List<Token> paramTokens = new ArrayList<Token>();
             tokenizeLine(paramTokens, params, scope);
             List<List<Token>> tokenTokens = tokenize(content, scope);
@@ -201,7 +201,9 @@ public class Tokenizer {
                 :
                     Token.new_If(0,paramTokens,tokenTokens)
             ));
-            lines = replace(lines, match);
+            int distanceOfBracket = match.indexOf("{") - (match.indexOf(params)+ params.length() + 1);
+            String fullContent = match.substring(0,content.length()+params.length()+4+((isWhile)? 5 : 2) + distanceOfBracket);
+            lines = replace(lines, fullContent);
             matches = getMatches(lines, query);
         }
         return lines;

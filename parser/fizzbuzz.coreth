@@ -1,4 +1,4 @@
-main() {
+void main() {
     int x = 1
     int max = 100
     int Either
@@ -6,17 +6,23 @@ main() {
     { 
         Either = 0
         if(3 *?= x) { 
-            write(0,"Fizz")
+            print("Fizz")
             Either = 1
         }
         if(5 *?= x) { 
-            write(0,"Buzz") 
+            print("Buzz") 
             Either = 1
         }
         if(!Either) { 
             printNumber(x)
         }
-        write(0,"\n")
+        print("\n")
         x = x + 1 
     } 
+}
+
+void print(string text) {
+    int len = strLen(text)
+    int ptr = pointerFromString(text)
+    syscallFour( 1, 0, ptr, len )
 }

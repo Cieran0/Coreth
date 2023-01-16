@@ -196,6 +196,7 @@ public class Function {
         System.out.println("Function: " + name);
         System.out.println("-----------------------");
         for(int i =0; i < tokens.size(); i++) {
+            if(tokens.get(i).size() == 0) continue;
             System.out.println("Line " + i);
             System.out.println("#####################");
             for (Token t : tokens.get(i)) {

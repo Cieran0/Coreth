@@ -229,9 +229,11 @@ public class Token {
             case IF:
             case WHILE:
             print(indent, "Block Tokens", "");
-            //for (Token t : blockTokens) {
-            //    t.printInfo(indent+4);
-            //};
+            for (List<Token> tokens: blockTokens) {
+                for (Token t : tokens) {
+                    t.printInfo(indent+4);
+                }
+            };
             case FUNCTION_CALL:
             print(indent, "Params", "");
             for (List<Token> tk : params) {

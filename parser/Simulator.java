@@ -57,6 +57,7 @@ public class Simulator {
 
     public static Token SimulateToken(List<Token> tokens, Integer index, Function scope) {
         Token t = tokens.get(index);
+        //t.printInfo(0);
         Variable var;
         Token nextToken;
         Token previousToken;
