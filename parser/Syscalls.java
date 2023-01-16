@@ -54,7 +54,7 @@ public class Syscalls {
             String text = Function.stringPointers.get(params.get(2).getInt()).substring(0,count);
             if(fd == 0) System.out.print(text);
             else FileManagement.writeToFile(text, fd);
-            return Token.new_NULLToken();
+            return Token.new_LiteralNum(-1, 0);
         }
     };
 
@@ -70,8 +70,9 @@ public class Syscalls {
     private static BuiltInFunction close = new BuiltInFunction() {
         @Override
         public Token run(List<Token> params) {
-            //TODO: implement close
-            return syscallNotSimulatedYet.run(params);
+            int fd = params.get(1).getInt();
+            if(fd != 0) FileManagement.Close(fd);
+            return Token.new_LiteralNum(-1, 0);
         }
     };
 
