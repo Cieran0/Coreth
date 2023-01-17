@@ -184,15 +184,15 @@ public class Token {
 
     //Shouldnt always work!
     public void declareVariable() {
-        this.scope.localVarMap.put(this.name, new Variable(this.variableName,this.variableType,this.value));
+        this.scope.declareVariable(new Variable(this.variableName,this.variableType,this.value));
     }
 
     public Variable getVariable() {
-        return Variable.getVar(this.variableName, this.scope);
+        return this.scope.getVariable(this.variableName);
     }
 
     public VariableType getVariableType() {
-        if(this.type == TokenType.VARIABLE_REFRENCE) return Variable.getVar(this.variableName, this.scope).getType();
+        if(this.type == TokenType.VARIABLE_REFRENCE) return this.scope.getVariable(this.variableName).getType();
         return this.variableType;
     }
 

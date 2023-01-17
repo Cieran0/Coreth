@@ -15,11 +15,15 @@ public class Function {
     private BuiltInFunction linkedBuiltInFunction;
     private VariableType returnType = VariableType.VOID;
     private String content;
-    public static List<String> stringPointers = new ArrayList<String>();
-    
+
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
-    public HashMap<String, Variable> localVarMap = new HashMap<String, Variable>();
+    //TODO: remove string pointers and replace with something else
+    public static List<String> stringPointers = new ArrayList<String>();
+
+    private HashMap<String, Integer> variableIndexMap = new HashMap<String,Integer>();
+    private List<Variable> localVariables = new ArrayList<Variable>();
+
     public HashMap<String, VariableType> localNameVariableTypeMap = new HashMap<String, VariableType>(); 
 
     public static Scanner sc = new Scanner(System.in);
@@ -111,9 +115,15 @@ public class Function {
             } else {
                 Parser.exitWithError(typeString + " is not a valid type", 92);
             }
-            localVarMap.put(name, new Variable(name, type));
+            int index = localVariables.size();
+            localVariables.add(new Variable(name, type));
+            variableIndexMap.put(name,index);
             this.expectedParams.add(type);
         }
+    }
+
+    public int getPointer(String name) {
+        return variableIndexMap.get(name);
     }
 
     public String getName() {
@@ -185,10 +195,10 @@ public class Function {
         for (int i=0; i < paramNames.size(); i++) {
             switch (expectedParams.get(i)) {
                 case INT:
-                    localVarMap.get(paramNames.get(i)).setValue(params.get(i).getInt());
+                    getVariable(paramNames.get(i)).setValue(params.get(i).getInt());
                     break;
                 case STRING:
-                    localVarMap.get(paramNames.get(i)).setValue(params.get(i).getString());
+                    getVariable(paramNames.get(i)).setValue(params.get(i).getString());
                     break;
                 default:
                     break;
@@ -198,6 +208,17 @@ public class Function {
             printTokens();
         }
         return Simulator.SimulateFunction(this,paramNames.size());
+    }
+
+    public void declareVariable(Variable variable) {
+        int index = localVariables.size();
+        localVariables.add(variable);
+        variableIndexMap.put(variable.getName(), index);
+    }
+
+    public Variable getVariable(String name) {
+        int index = variableIndexMap.get(name);
+        return localVariables.get(index);
     }
 
     public void printTokens() {

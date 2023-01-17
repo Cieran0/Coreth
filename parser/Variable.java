@@ -18,17 +18,6 @@ public class Variable {
         this.type = type;
     }
 
-    public static Variable getVar(String name, Function scope) {
-        if(!scope.localVarMap.containsKey(name)) {
-            System.out.println("variables in function " + scope.getName() + ":");
-            for (String key : scope.localVarMap.keySet()) {
-                System.out.println(key);
-            }
-            Parser.exitWithError("variable " + name + " not defined!", 17);
-        }
-        return scope.localVarMap.get(name);
-    }
-
 
     public Object getValue() {
         return this.value;
