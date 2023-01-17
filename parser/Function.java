@@ -18,11 +18,7 @@ public class Function {
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
-    //TODO: remove string pointers and replace with something else
-    public static List<String> stringPointers = new ArrayList<String>();
-
-    private HashMap<String, Integer> variableIndexMap = new HashMap<String,Integer>();
-    private List<Variable> localVariables = new ArrayList<Variable>();
+    private HashMap<String, Integer> localVariableIndexMap = new HashMap<String,Integer>();
 
     public HashMap<String, VariableType> localNameVariableTypeMap = new HashMap<String, VariableType>(); 
 
@@ -45,23 +41,20 @@ public class Function {
             }
         },VariableType.STRING,List.of());
 
+        //TODO: Assumes Variable given but literal could be given. 
         new Function("pointerFromString", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                int ptr = stringPointers.indexOf(params.get(0).getString());
-                if(ptr < 0) {
-                    ptr = stringPointers.size();
-                    stringPointers.add(params.get(0).getString());
-                }
+                int ptr = params.get(0).getVariable().getIndex();
                 return Token.new_LiteralNum(-1, ptr);
             }
         }, VariableType.INT, List.of(VariableType.STRING));
 
-
+        //TODO: Assumes Variable given but literal could be given. 
         new Function("stringFromPointer", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                return Token.new_LiteralString(-1, stringPointers.get(params.get(0).getInt()));
+                return Token.new_LiteralString(-1, Memory.getVariable(params.get(0).getInt()).getStringValue());
             }
         }, VariableType.STRING, List.of(VariableType.INT));
 
@@ -115,15 +108,14 @@ public class Function {
             } else {
                 Parser.exitWithError(typeString + " is not a valid type", 92);
             }
-            int index = localVariables.size();
-            localVariables.add(new Variable(name, type));
-            variableIndexMap.put(name,index);
+            int index = Memory.addVariable(new Variable(name, type));
+            localVariableIndexMap.put(name,index);
             this.expectedParams.add(type);
         }
     }
 
     public int getPointer(String name) {
-        return variableIndexMap.get(name);
+        return localVariableIndexMap.get(name);
     }
 
     public String getName() {
@@ -207,18 +199,19 @@ public class Function {
         if(Parser.printTokens) {
             printTokens();
         }
-        return Simulator.SimulateFunction(this,paramNames.size());
+        Token returnValue = Simulator.SimulateFunction(this,paramNames.size());
+        Memory.killVariables(localVariableIndexMap.values());
+        return returnValue;
     }
 
     public void declareVariable(Variable variable) {
-        int index = localVariables.size();
-        localVariables.add(variable);
-        variableIndexMap.put(variable.getName(), index);
+        int index = Memory.addVariable(variable);
+        localVariableIndexMap.put(variable.getName(), index);
     }
 
     public Variable getVariable(String name) {
-        int index = variableIndexMap.get(name);
-        return localVariables.get(index);
+        int index = localVariableIndexMap.get(name);
+        return Memory.getVariable(index);
     }
 
     public void printTokens() {

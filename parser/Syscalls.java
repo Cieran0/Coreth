@@ -45,8 +45,8 @@ public class Syscalls {
             int fd = params.get(1).getInt();
             int ptr = params.get(2).getInt();
             int count = params.get(3).getInt();
-            String buff = Function.stringPointers.get(ptr);
-            Function.stringPointers.set(ptr, FileManagement.readFromFile(fd,count)); 
+            String buff = Memory.getVariable(ptr).getStringValue();
+            Memory.getVariable(ptr).setValue(FileManagement.readFromFile(fd,count)); 
             return Token.new_LiteralNum(-1, 0);
         }
     };
@@ -56,7 +56,7 @@ public class Syscalls {
         public Token run(List<Token> params) {
             int fd = params.get(1).getInt();
             int count = params.get(3).getInt();
-            String text = Function.stringPointers.get(params.get(2).getInt()).substring(0,count);
+            String text = Memory.getVariable(params.get(2).getInt()).getStringValue().substring(0,count);
             if(fd == 0) System.out.print(text);
             else FileManagement.writeToFile(text, fd);
             return Token.new_LiteralNum(-1, 0);
@@ -66,7 +66,7 @@ public class Syscalls {
     private static BuiltInFunction open = new BuiltInFunction() {
         @Override
         public Token run(List<Token> params) {
-            String path = Function.stringPointers.get(params.get(1).getInt());
+            String path = Memory.getVariable((params.get(1).getInt())).getStringValue();
             int fd = FileManagement.OpenFile(path, false);
             return Token.new_LiteralNum(-1,fd);
         }
