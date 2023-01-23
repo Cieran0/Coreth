@@ -105,9 +105,11 @@ public class Parser {
             return Function.funcMap.get(token.getName()).getReturnType();
         }
         switch (token.getType()) {
-            case LITERAL_NUM:
+            case CONSTANT_INTEGER:
+            case INTEGER:
                 return VariableType.INT;
-            case LITERAL_STRING:
+            case CONSTANT_STRING:
+            case STRING:
                 return VariableType.STRING;
             default:
                 return VariableType.VOID;

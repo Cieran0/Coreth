@@ -37,7 +37,7 @@ public class Function {
         new Function("readLine", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                return Token.new_LiteralString(-1, sc.nextLine());
+                return Token.new_String( sc.nextLine());
             }
         },VariableType.STRING,List.of());
 
@@ -46,7 +46,7 @@ public class Function {
             @Override
             public Token run(List<Token> params) {
                 int ptr = params.get(0).getVariable().getIndex();
-                return Token.new_LiteralNum(-1, ptr);
+                return Token.new_Integer( ptr);
             }
         }, VariableType.INT, List.of(VariableType.STRING));
 
@@ -54,14 +54,14 @@ public class Function {
         new Function("stringFromPointer", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                return Token.new_LiteralString(-1, Memory.getVariable(params.get(0).getInt()).getStringValue());
+                return Token.new_String( Memory.getVariable(params.get(0).getInt()).getStringValue());
             }
         }, VariableType.STRING, List.of(VariableType.INT));
 
         new Function("strLen", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
-                return Token.new_LiteralNum(-1, params.get(0).getString().length());
+                return Token.new_Integer( params.get(0).getString().length());
             }
         }, VariableType.INT, List.of(VariableType.STRING));
 

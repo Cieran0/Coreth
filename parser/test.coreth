@@ -1,12 +1,10 @@
 #include "stdlib.coreth"
 
 void main() {
+    
+}
+
+int test() {
     string bfString = "12345\n"
-    int len = strLen(bfString)
-    int buff = pointerFromString(bfString)
-    int fd = open("test.txt")
-    write(fd,buff,len)
-    read(fd, buff, len)
-    close(fd)
-    print(stringFromPointer(buff))
+    print(bfString)
 }

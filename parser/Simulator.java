@@ -72,8 +72,10 @@ public class Simulator {
                     Parser.exitWithError("No builtIn function called ["+fName+"]!",10);
                 }
                 break;
-            case LITERAL_NUM:
-            case LITERAL_STRING:
+            case CONSTANT_INTEGER:
+            case INTEGER:
+            case CONSTANT_STRING:
+            case STRING:
                 return t;
             case VARIABLE_ASSIGNMENT:
                 break;
@@ -106,13 +108,13 @@ public class Simulator {
             case MODULUS:
             case AND:
             case OR:
-            case ISFACTOR:
+            case IS_FACTOR:
             case EQUAL:
-            case NOTEQUAL:
+            case NOT_EQUAL:
             case GREATER:
             case LESSER:
-            case NOTLESSER:
-            case NOTGREATER:
+            case NOT_LESSER:
+            case NOT_GREATER:
                 previousToken = SimulateToken(tokens,index+1,scope);
                 nextToken = SimulateToken(tokens,index+2,scope);
 
@@ -120,33 +122,33 @@ public class Simulator {
                     case INT:
                         switch(t.getType()) {
                             case PLUS:
-                                return Token.new_LiteralNum(0,previousToken.getInt() + nextToken.getInt());
+                                return Token.new_Integer(previousToken.getInt() + nextToken.getInt());
                             case MINUS:
-                                return Token.new_LiteralNum(0,previousToken.getInt() - nextToken.getInt());
+                                return Token.new_Integer(previousToken.getInt() - nextToken.getInt());
                             case DIVIDE:
-                                return Token.new_LiteralNum(0,previousToken.getInt() / nextToken.getInt());
+                                return Token.new_Integer(previousToken.getInt() / nextToken.getInt());
                             case MULTIPLY:
-                                return Token.new_LiteralNum(0,previousToken.getInt() * nextToken.getInt());
+                                return Token.new_Integer(previousToken.getInt() * nextToken.getInt());
                             case MODULUS:
-                                return Token.new_LiteralNum(0,previousToken.getInt() % nextToken.getInt());
-                            case ISFACTOR:
-                                return Token.new_LiteralNum(0,intFromBool(nextToken.getInt() % previousToken.getInt() == 0));
+                                return Token.new_Integer(previousToken.getInt() % nextToken.getInt());
+                            case IS_FACTOR:
+                                return Token.new_Integer(intFromBool(nextToken.getInt() % previousToken.getInt() == 0));
                             case AND:
-                                return Token.new_LiteralNum(0,intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
+                                return Token.new_Integer(intFromBool(BooleanFromToken(previousToken) && BooleanFromToken(nextToken)));
                             case OR:
-                                return Token.new_LiteralNum(0,intFromBool(BooleanFromToken(previousToken) || BooleanFromToken(nextToken)));
+                                return Token.new_Integer(intFromBool(BooleanFromToken(previousToken) || BooleanFromToken(nextToken)));
                             case EQUAL:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() == nextToken.getInt()));
-                            case NOTEQUAL:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() != nextToken.getInt()));
+                                return Token.new_Integer(intFromBool(previousToken.getInt() == nextToken.getInt()));
+                            case NOT_EQUAL:
+                                return Token.new_Integer(intFromBool(previousToken.getInt() != nextToken.getInt()));
                             case GREATER:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() > nextToken.getInt()));
+                                return Token.new_Integer(intFromBool(previousToken.getInt() > nextToken.getInt()));
                             case LESSER:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() < nextToken.getInt()));
-                            case NOTLESSER:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() >= nextToken.getInt()));
-                            case NOTGREATER:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getInt() <= nextToken.getInt()));
+                                return Token.new_Integer(intFromBool(previousToken.getInt() < nextToken.getInt()));
+                            case NOT_LESSER:
+                                return Token.new_Integer(intFromBool(previousToken.getInt() >= nextToken.getInt()));
+                            case NOT_GREATER:
+                                return Token.new_Integer(intFromBool(previousToken.getInt() <= nextToken.getInt()));
                             default:
                                 break;
                         }
@@ -154,9 +156,9 @@ public class Simulator {
                     case STRING:
                         switch(t.getType()) {
                             case PLUS:
-                                return Token.new_LiteralString(0, previousToken.getString() + nextToken.getString());
+                                return Token.new_String(previousToken.getString() + nextToken.getString());
                             case EQUAL:
-                                return Token.new_LiteralNum(0,intFromBool(previousToken.getString().equals(nextToken.getString())));
+                                return Token.new_Integer(intFromBool(previousToken.getString().equals(nextToken.getString())));
                             default:
                                 break;
                         }
@@ -180,7 +182,7 @@ public class Simulator {
                 break;
             case NOT:
                 nextToken = SimulateToken(tokens,index+1,scope);
-                return Token.new_LiteralNum(index, intFromBool(!BooleanFromToken(nextToken)));
+                return Token.new_Integer(intFromBool(!BooleanFromToken(nextToken)));
             case RETURN:
                 exitFunction = true;
                 if(scope.getReturnType() == VariableType.VOID) return Token.new_NULLToken();

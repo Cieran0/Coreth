@@ -21,17 +21,30 @@ public class Token {
         this.charNo = charNo;
     }
 
-    public static Token new_LiteralString( Integer charNo, String value) {
-        Token t = new Token(TokenType.LITERAL_STRING,value,charNo);
+    public static Token new_ConstantString( Integer charNo, String value) {
+        Token t = new Token(TokenType.CONSTANT_STRING,value,charNo);
         t.value = value;
         return t;
     }
 
-    public static Token new_LiteralNum( Integer charNo, Integer value) {
-        Token t = new Token(TokenType.LITERAL_NUM, value.toString(),  charNo);
+    public static Token new_ConstantInteger( Integer charNo, Integer value) {
+        Token t = new Token(TokenType.CONSTANT_INTEGER, value.toString(),  charNo);
         t.value = value;
         return t;
     }
+
+    public static Token new_String(String value) {
+        Token t = new Token(TokenType.STRING,value,-1);
+        t.value = value;
+        return t;
+    }
+
+    public static Token new_Integer(Integer value) {
+        Token t = new Token(TokenType.INTEGER, value.toString(),  -1);
+        t.value = value;
+        return t;
+    }
+
 
     public static Token new_VariableRefrence(String name,  Integer charNo, Function scope) {
         Token t = new Token(TokenType.VARIABLE_REFRENCE, name,  charNo);
@@ -108,7 +121,7 @@ public class Token {
         return t;
     }
 
-    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND, TokenType.OR, TokenType.ISFACTOR, TokenType.EQUAL, TokenType.NOTEQUAL, TokenType.GREATER, TokenType.LESSER, TokenType.NOTLESSER, TokenType.NOTGREATER);
+    public static final Set<TokenType> LogicTokens = Set.of(TokenType.AND, TokenType.OR, TokenType.IS_FACTOR, TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.GREATER, TokenType.LESSER, TokenType.NOT_LESSER, TokenType.NOT_GREATER);
 
     public static Token new_And( Integer charNo) {
         Token t = new Token(TokenType.AND, "&&",  charNo);
@@ -126,7 +139,7 @@ public class Token {
             type = TokenType.EQUAL;
         }
         else if(comparison.equals("!=")) {
-            type = TokenType.NOTEQUAL;
+            type = TokenType.NOT_EQUAL;
         }
         else if(comparison.equals(">")) {
             type = TokenType.GREATER;
@@ -135,13 +148,13 @@ public class Token {
             type = TokenType.LESSER;
         }
         else if(comparison.equals(">=")) {
-            type = TokenType.NOTLESSER;
+            type = TokenType.NOT_LESSER;
         }
         else if(comparison.equals("<=")) {
-            type = TokenType.NOTGREATER;
+            type = TokenType.NOT_GREATER;
         } 
         else if (comparison.equals("*?=")) {
-            type = TokenType.ISFACTOR;
+            type = TokenType.IS_FACTOR;
         }
         else {
             Parser.exitWithError(comparison + " is not a valid comparison function", 0);
@@ -201,9 +214,9 @@ public class Token {
     }
 
     public Integer getInt() {
-        if(this.type == TokenType.LITERAL_NUM) return (Integer)this.value;
+        if(this.type == TokenType.CONSTANT_INTEGER || this.type == TokenType.INTEGER) return (Integer)this.value;
         if(this.type == TokenType.VARIABLE_REFRENCE) return this.getVariable().getIntValue();
-        Parser.exitWithError("Expected type " + TokenType.LITERAL_NUM + " got type " + this.type, 0);
+        Parser.exitWithError("Expected type " + TokenType.INTEGER + " got type " + this.type, 0);
         return 0;
     }
 
@@ -212,7 +225,7 @@ public class Token {
     }
 
     public String getString() {
-        if(this.type == TokenType.LITERAL_STRING) return (String)this.value;
+        if(this.type == TokenType.CONSTANT_STRING || this.type == TokenType.STRING) return (String)this.value;
         return this.getVariable().getStringValue();
     }
     //End of shouldnt always work!

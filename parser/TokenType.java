@@ -2,8 +2,10 @@ package parser;
 
 public enum TokenType {
     FUNCTION_CALL,
-    LITERAL_NUM, 
-    LITERAL_STRING,
+    CONSTANT_INTEGER,
+    INTEGER, 
+    CONSTANT_STRING,
+    STRING,
     VARIABLE_DECLARATION,
     VARIABLE_REFRENCE,
     VARIABLE_ASSIGNMENT,
@@ -18,12 +20,12 @@ public enum TokenType {
     AND,
     OR,
     EQUAL,
-    NOTEQUAL,
+    NOT_EQUAL,
     GREATER,
     LESSER,
-    NOTLESSER,
-    NOTGREATER,
-    ISFACTOR,
+    NOT_LESSER,
+    NOT_GREATER,
+    IS_FACTOR,
     RETURN,
     NULL
 }

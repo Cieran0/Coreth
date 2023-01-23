@@ -88,7 +88,7 @@ public class Tokenizer {
     private static String extractStringLiterals(List<Token> tokens, String line) {
         for (String match : getMatches(line, "\"(.*?)\"")) {
             String value = match.substring(1,match.length()-1);
-            tokens.add(Token.new_LiteralString( line.indexOf(match), value.replace("\\n", "\n")));
+            tokens.add(Token.new_ConstantString( line.indexOf(match), value.replace("\\n", "\n")));
             line = replace(line, match);
         }
         return line;
@@ -96,7 +96,7 @@ public class Tokenizer {
 
     private static String extractNumberLiterals(List<Token> tokens, String line) {
         for (String match : getMatches(line, "-?\\d+")) {
-            tokens.add(Token.new_LiteralNum( line.indexOf(match), Integer.parseInt(match)));
+            tokens.add(Token.new_ConstantInteger( line.indexOf(match), Integer.parseInt(match)));
             line = replace(line, match);
         }
         return line;
