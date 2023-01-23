@@ -142,6 +142,15 @@ public class Function {
         this.tokens.addAll(sortTokens(Tokenizer.tokenize(content, this)));
     }
 
+    public boolean hasReturnAtEnd() {
+        if(this.isbuiltIn || this.returnType == VariableType.VOID) return true;
+        List<Token> lastLine = this.tokens.get(tokens.size()-1);
+        for (Token token : lastLine) {
+            if(token.getType() == TokenType.RETURN) return true;
+        }
+        return false;
+    }
+
     public static List<List<Token>> sortTokens(List<List<Token>> tokenLineList) {
         for (List<Token> tokens : tokenLineList) {
                 Token buff;

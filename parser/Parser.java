@@ -54,6 +54,9 @@ public class Parser {
         for (Function function : Function.funcMap.values()) {
             if(!function.isInBuiltFunction()) {
                 function.addTokensFromContent();
+                if(!function.hasReturnAtEnd()) {
+                    exitWithError("Function [" + function.getName() + "] is missing return on last line",11);
+                }
             }
         }
         if(mainFunction == null) {
@@ -88,7 +91,7 @@ public class Parser {
 
     public static void exitWithError(String msg, int errorNo) {
         System.out.println("Error: " + msg);
-        System.out.println("Line: " + line);
+        //System.out.println("Line: " + line);
         Thread.dumpStack();
         System.exit(errorNo);
     }

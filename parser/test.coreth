@@ -1,10 +1,11 @@
 #include "stdlib.coreth"
 
 void main() {
-    
+    test()
 }
 
 int test() {
     string bfString = "12345\n"
     print(bfString)
+    return 0
 }
