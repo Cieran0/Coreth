@@ -12,6 +12,7 @@ public class Parser {
     public static Integer line = 0;
 
     public static final Boolean printTokens = false;
+    public static final Boolean dumpMemoryOnExit = false;
 
     public static HashMap<String,VariableType> stringVariableTypeMap = new HashMap<String,VariableType>() {{
         put("void",VariableType.VOID);
@@ -65,6 +66,9 @@ public class Parser {
             exitWithError("main function not found", 1);
         }
         mainFunction.execute(List.of());
+        if(dumpMemoryOnExit) {
+            Memory.dump();
+        }
     }
 
     public static String ExtractFunction(String lines) {

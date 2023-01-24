@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Memory {
     
-    private static final boolean GC_ENABLED = false;
+    private static final boolean GC_ENABLED = true;
 
     private static List<Variable> variables = new ArrayList<Variable>();
 
@@ -35,6 +35,12 @@ public class Memory {
             for (Integer index : indexes) {
                 variables.get(index).kill();
             }
+        }
+    }
+
+    public static void dump() {
+        for (Variable variable : variables) {
+            System.out.println(variable);
         }
     }
 

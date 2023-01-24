@@ -91,8 +91,6 @@ public class Function {
             } else {
                 Parser.exitWithError(typeString + " is not a valid type", 92);
             }
-            int index = Memory.addVariable(new Variable(name, type));
-            localVariableIndexMap.put(name,index);
             this.expectedParams.add(type);
         }
     }
@@ -177,6 +175,7 @@ public class Function {
 
         checkParams(params);
         for (int i=0; i < paramNames.size(); i++) {
+            declareVariable(new Variable(paramNames.get(i), expectedParams.get(i)));
             switch (expectedParams.get(i)) {
                 case INT:
                     getVariable(paramNames.get(i)).setValue(params.get(i).getInt());
