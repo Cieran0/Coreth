@@ -89,6 +89,7 @@ public class Simulator {
                     nextToken = SimulateToken(tokens, index+2, scope);
                     switch(var.getType()){
                         case INT:
+                        case POINTER:
                             var.setValue(nextToken.getInt());
                             break;
                         case STRING:
@@ -187,6 +188,12 @@ public class Simulator {
                 exitFunction = true;
                 if(scope.getReturnType() == VariableType.VOID) return Token.new_NULLToken();
                 return SimulateToken(tokens,index+1,scope);
+            case REFERENCE:
+                nextToken = SimulateToken(tokens, index+1, scope);
+                return Token.new_Pointer(nextToken.getVariable().getIndex());
+            case DEREFERENCE:
+                nextToken = SimulateToken(tokens, index+1, scope);
+                return Token.new_VariableRefrence(Memory.getVariable(nextToken.getInt()), scope);
             default:
                 break;
         }

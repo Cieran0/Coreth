@@ -17,6 +17,8 @@ public class Parser {
         put("void",VariableType.VOID);
         put("string",VariableType.STRING);
         put("int",VariableType.INT);
+        put("pointer",VariableType.POINTER);
+
     }};
 
     public static String readLines(String path) {

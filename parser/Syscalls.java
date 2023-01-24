@@ -10,7 +10,7 @@ public class Syscalls {
         @Override
         public BuiltInFunction get(Object key) {
             BuiltInFunction value = super.get(key);
-            return (value == null)? null : value;
+            return (value == null)? syscallNotSimulatedYet : value;
         };
 
     };
@@ -44,7 +44,6 @@ public class Syscalls {
             int fd = params.get(1).getInt();
             int ptr = params.get(2).getInt();
             int count = params.get(3).getInt();
-            String buff = Memory.getVariable(ptr).getStringValue();
             Memory.getVariable(ptr).setValue(FileManagement.readFromFile(fd,count)); 
             return Token.new_Integer(0);
         }

@@ -45,9 +45,24 @@ public class Token {
         return t;
     }
 
+    public static Token new_Pointer(Integer value) {
+        Token t = new Token(TokenType.POINTER, value.toString(),  -1);
+        t.value = value;
+        return t;
+    }
+
 
     public static Token new_VariableRefrence(String name,  Integer charNo, Function scope) {
         Token t = new Token(TokenType.VARIABLE_REFRENCE, name,  charNo);
+        t.variableName = name;
+        t.scope = scope;
+        t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
+        return t;
+    }
+
+    public static Token new_VariableRefrence(Variable variable, Function scope) {
+        String name = variable.getName();
+        Token t = new Token(TokenType.VARIABLE_REFRENCE, name, -1);
         t.variableName = name;
         t.scope = scope;
         t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
@@ -94,6 +109,15 @@ public class Token {
             case '%':
                 type = TokenType.MODULUS;
                 break;
+            //TODO: not really math but parsed as maths to save time writing code.
+            //###################################################################    
+            case '$':
+                type = TokenType.DEREFERENCE;
+                break;
+            case '~':
+                type = TokenType.REFERENCE;
+                break;
+            //####################################################################
             default:
                 Parser.exitWithError(function + " is not a valid maths function", 0);
                 break;
@@ -201,7 +225,9 @@ public class Token {
     }
 
     public Variable getVariable() {
-        return this.scope.getVariable(this.variableName);
+        if(this.type == TokenType.POINTER) 
+            return Memory.getVariable((Integer)this.value);
+        return Memory.getVariable( scope.getPointer(name));
     }
 
     public VariableType getVariableType() {
@@ -214,7 +240,7 @@ public class Token {
     }
 
     public Integer getInt() {
-        if(this.type == TokenType.CONSTANT_INTEGER || this.type == TokenType.INTEGER) return (Integer)this.value;
+        if(this.type == TokenType.CONSTANT_INTEGER || this.type == TokenType.INTEGER || this.type == TokenType.POINTER) return (Integer)this.value;
         if(this.type == TokenType.VARIABLE_REFRENCE) return this.getVariable().getIntValue();
         Parser.exitWithError("Expected type " + TokenType.INTEGER + " got type " + this.type, 0);
         return 0;

@@ -103,7 +103,7 @@ public class Tokenizer {
     }
 
     private static String extractVariableDeclaration(List<Token> tokens, String line, Function scope) {
-        for (String match : getMatches(line,"(string|int)\\s\\w+")) {
+        for (String match : getMatches(line,"(string|int|pointer)\\s\\w+")) {
             String[] matchSplit = match.split(" ");
             String typeString = matchSplit[0];
             String name = matchSplit[1];
@@ -123,7 +123,7 @@ public class Tokenizer {
     }
 
     private static String extractMaths(List<Token> tokens, String line) {
-        final Character[] mathsFunctions = {'+','-','*','\\','%'};
+        final Character[] mathsFunctions = {'+','-','*','\\','%','$','~'};
         final String[] comparisonFunctions = {"==","!=",">=","<=",">","<"};
 
         for (String match : getMatches(line, "\\*\\?\\=")) {

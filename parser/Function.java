@@ -41,23 +41,6 @@ public class Function {
             }
         },VariableType.STRING,List.of());
 
-        //TODO: Assumes Variable given but literal could be given. 
-        new Function("pointerFromString", new BuiltInFunction() {
-            @Override
-            public Token run(List<Token> params) {
-                int ptr = params.get(0).getVariable().getIndex();
-                return Token.new_Integer( ptr);
-            }
-        }, VariableType.INT, List.of(VariableType.STRING));
-
-        //TODO: Assumes Variable given but literal could be given. 
-        new Function("stringFromPointer", new BuiltInFunction() {
-            @Override
-            public Token run(List<Token> params) {
-                return Token.new_String( Memory.getVariable(params.get(0).getInt()).getStringValue());
-            }
-        }, VariableType.STRING, List.of(VariableType.INT));
-
         new Function("strLen", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {

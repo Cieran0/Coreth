@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Memory {
     
-    private static final boolean GC_ENABLED = true;
+    private static final boolean GC_ENABLED = false;
 
     private static List<Variable> variables = new ArrayList<Variable>();
 

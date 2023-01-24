@@ -23,6 +23,6 @@ void main() {
 
 void print(string text) {
     int len = strLen(text)
-    int ptr = pointerFromString(text)
+    int ptr = ~text
     syscallFour( 1, 0, ptr, len )
 }
