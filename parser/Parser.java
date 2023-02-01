@@ -13,6 +13,7 @@ public class Parser {
 
     public static final Boolean printTokens = false;
     public static final Boolean dumpMemoryOnExit = false;
+    public static final Boolean createJSONFile = true;
 
     public static HashMap<String,VariableType> stringVariableTypeMap = new HashMap<String,VariableType>() {{
         put("void",VariableType.VOID);
@@ -69,6 +70,7 @@ public class Parser {
         if(dumpMemoryOnExit) {
             Memory.dump();
         }
+        Serializer.SaveJSON("test.json");
     }
 
     public static String ExtractFunction(String lines) {
