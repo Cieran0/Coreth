@@ -20,7 +20,7 @@ public class Serializer {
     public static String createJSON() {
         String data = "{\n\"functions\": [";
         for (Function function : Function.funcMap.values()) {
-            if(function.isInBuiltFunction()) continue;
+            if(function.isInBuiltFunction() || !function.isUsed()) continue;
             data += JSONfromFunction(function, 1);
         }
         data = data.substring(0,data.length()-1);

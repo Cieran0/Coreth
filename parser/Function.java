@@ -15,6 +15,7 @@ public class Function {
     private BuiltInFunction linkedBuiltInFunction;
     private VariableType returnType = VariableType.VOID;
     private String content;
+    private Boolean used = false;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
@@ -102,6 +103,14 @@ public class Function {
 
     public String getName() {
         return this.name;
+    }
+
+    public Boolean isUsed() {
+        return this.used;
+    }
+
+    public void setUsed() {
+        this.used = true;
     }
 
     public List<VariableType> getExpectedParams(){

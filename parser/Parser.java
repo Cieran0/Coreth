@@ -39,6 +39,20 @@ public class Parser {
         return null;
     }
 
+    public static void markUsedFunctions(Function main) {
+        main.setUsed();
+        for (List<Token> tokenList : main.getTokens()) {
+            for (Token token : tokenList) {
+                if(token.getType() == TokenType.FUNCTION_CALL) {
+                    Function func = Function.funcMap.get(token.getName());
+                    if(!func.isInBuiltFunction() && !func.isUsed()) {
+                        markUsedFunctions(func);
+                    }
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
         String path = (args.length > 0)? args[0] : "test.coreth";
         Syscalls.SetUpMap();
@@ -70,6 +84,7 @@ public class Parser {
         if(dumpMemoryOnExit) {
             Memory.dump();
         }
+        markUsedFunctions(mainFunction);
         Serializer.SaveJSON("test.json");
     }
 
