@@ -103,6 +103,14 @@ public class Function {
         return this.name;
     }
 
+    public List<VariableType> getExpectedParams(){
+        return this.expectedParams;
+    }
+
+    public List<String> getParamNames() {
+        return this.paramNames;
+    }
+
     public List<List<Token>> getTokens() {
         return this.tokens;
     }

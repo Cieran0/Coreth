@@ -31,6 +31,18 @@ public class Serializer {
 
     public static String JSONfromFunction(Function function, int indent) {
         String data = "\n{\n\"name\": \"" + function.getName() + "\",\n";
+        data += "\"returnType\": \""+function.getReturnType()+"\",\n";
+        if(function.getExpectedParams().size() > 0) {
+            data += "\"params\": [";
+            for(int i = 0; i < function.getParamNames().size(); i++) {
+                data+="\n\t{\n";
+                data+="\t\t\"name\": \"" + function.getParamNames().get(i)+"\",\n";
+                data+="\t\t\"variableType\": \"" + function.getExpectedParams().get(i)+"\"";
+                data += "\n\t},";
+            }
+            data = data.substring(0,data.length()-1);
+            data += "\n],\n";
+        }
         data += "\"tokens\": [";
         for (List<Token> tokenList : function.getTokens()) {
             for (Token token : tokenList) {
