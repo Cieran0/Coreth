@@ -84,6 +84,7 @@ public class Function {
             VariableType type = null;
             String name = split[1].trim();
             this.paramNames.add(name);
+            VariableID.addNewVariableIDToList(this, name);
             if(typeString.equals("int")) {
                 type=VariableType.INT;
             } else if(typeString.equals("string")) {

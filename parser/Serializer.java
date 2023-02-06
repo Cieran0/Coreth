@@ -37,7 +37,8 @@ public class Serializer {
             for(int i = 0; i < function.getParamNames().size(); i++) {
                 data+="\n\t{\n";
                 data+="\t\t\"name\": \"" + function.getParamNames().get(i)+"\",\n";
-                data+="\t\t\"variableType\": \"" + function.getExpectedParams().get(i)+"\"";
+                data+="\t\t\"variableType\": \"" + function.getExpectedParams().get(i)+"\",\n";
+                data += "\t\t\"variableID\": " +  VariableID.getVariableID(function, function.getParamNames().get(i));
                 data += "\n\t},";
             }
             data = data.substring(0,data.length()-1);
@@ -71,10 +72,12 @@ public class Serializer {
                 break;
                 case VARIABLE_DECLARATION:
                 data += "\"variableName\": " + "\"" + token.getName() + "\",\n";
+                data += "\"variableID\": " +  token.getID() + ",\n";
                 data += "\"variableType\": " + "\"" + token.getVariableType() + "\"\n";
                 break;
-            case VARIABLE_REFRENCE:
-                data += "\"variableName\": " + "\"" + token.getName() + "\"\n";
+                case VARIABLE_REFRENCE:
+                data += "\"variableName\": " + "\"" + token.getName() + "\",\n";
+                data += "\"variableID\": " + token.getID() + "\n";
                 break;
             case IF:
             case WHILE:

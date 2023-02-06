@@ -14,6 +14,7 @@ public class Token {
     private VariableType variableType;
     private List<List<Token>> params;
     private List<List<Token>> blockTokens;
+    private Integer id;
 
     private Token(TokenType type, String name,  Integer charNo) {
         this.type = type;
@@ -57,6 +58,7 @@ public class Token {
         t.variableName = name;
         t.scope = scope;
         t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
+        t.id = VariableID.getVariableID(scope, name);
         return t;
     }
 
@@ -66,6 +68,7 @@ public class Token {
         t.variableName = name;
         t.scope = scope;
         t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
+        t.id = VariableID.getVariableID(scope, name);
         return t;
     }
 
@@ -75,6 +78,7 @@ public class Token {
         t.variableType = variableType;
         t.scope = scope;
         t.scope.localNameVariableTypeMap.put(t.name, t.variableType);
+        t.id = VariableID.addNewVariableIDToList(scope, name);
         return t;
     }
 
@@ -206,6 +210,9 @@ public class Token {
         return this.charNo;
     }
 
+    public Integer getID() {
+        return this.id;
+    }
 
     public String getName() {
         return this.name;
