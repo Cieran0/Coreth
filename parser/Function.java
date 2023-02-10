@@ -2,6 +2,7 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -16,6 +17,7 @@ public class Function {
     private VariableType returnType = VariableType.VOID;
     private String content;
     private Boolean used = false;
+    private HashSet<String> variableNames;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
@@ -63,6 +65,7 @@ public class Function {
         this.isbuiltIn = false;
         this.expectedParams=new ArrayList<VariableType>();
         this.paramNames=new ArrayList<String>();
+        this.variableNames = new HashSet<String>();
         this.content = content;
         this.expectedParamsFromString(paramString);
         funcMap.put(name, this);
@@ -85,7 +88,7 @@ public class Function {
             VariableType type = null;
             String name = split[1].trim();
             this.paramNames.add(name);
-            VariableID.addNewVariableIDToList(this, name);
+            variableNames.add(name);
             if(typeString.equals("int")) {
                 type=VariableType.INT;
             } else if(typeString.equals("string")) {
@@ -95,6 +98,22 @@ public class Function {
             }
             this.expectedParams.add(type);
         }
+    }
+
+    public Integer addNewVariableNameToList(String name) {
+        variableNames.add(name);
+        return variableNames.size()-1;
+    }
+
+    public Integer getVariableNameIndex(String name) {
+        int i = 0;
+        for (String s : variableNames) {
+            if(s.equals(name)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
     }
 
     public int getPointer(String name) {

@@ -2,7 +2,10 @@ package parser;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class Serializer {
 
@@ -38,7 +41,38 @@ public class Serializer {
                 data+="\n\t{\n";
                 data+="\t\t\"name\": \"" + function.getParamNames().get(i)+"\",\n";
                 data+="\t\t\"variableType\": \"" + function.getExpectedParams().get(i)+"\",\n";
-                data += "\t\t\"variableID\": " +  VariableID.getVariableID(function, function.getParamNames().get(i));
+                data += "\t\t\"variableID\": " + function.getVariableNameIndex(function.getParamNames().get(i));
+                data += "\n\t},";
+            }
+            data = data.substring(0,data.length()-1);
+            data += "\n],\n";
+        }
+        if(function.getExpectedParams().size() > 0) {
+            data += "\"variables\": [";
+            List<String> variableNamesList = new ArrayList<String>();
+            List<VariableType> variableTypeList = new ArrayList<VariableType>();
+            for (String name : function.getParamNames()) {
+                variableNamesList.add(name);
+            }
+            for(String name : function.localNameVariableTypeMap.keySet()) {
+                variableNamesList.add(name);
+            }
+
+            for (VariableType type : function.getExpectedParams()) {
+                variableTypeList.add(type);
+            }
+            for(VariableType type : function.localNameVariableTypeMap.values()) {
+                variableTypeList.add(type);
+            }
+
+            sort(function,variableNamesList,variableTypeList);
+
+            int size = variableNamesList.size();
+            for(int i = 0; i < size; i++) {
+                data+="\n\t{\n";
+                data+="\t\t\"name\": \"" + variableNamesList.get(i)+"\",\n";
+                data+="\t\t\"variableType\": \"" + variableTypeList.get(i)+"\",\n";
+                data += "\t\t\"variableID\": " + function.getVariableNameIndex(variableNamesList.get(i));
                 data += "\n\t},";
             }
             data = data.substring(0,data.length()-1);
@@ -108,4 +142,23 @@ public class Serializer {
         return data.substring(0,data.length()-1).replace("\n", "\n" + "\t".repeat(indent));
     }
 
+    private static void sort(Function function, List<String> variableNamesList, List<VariableType> variableTypeList) {
+        int n = variableNamesList.size();
+        for (int i = 1; i < n; ++i) {
+            String string_key = variableNamesList.get(i);
+            VariableType type_key = variableTypeList.get(i);
+            int j = i - 1;
+ 
+            /* Move elements of arr[0..i-1], that are
+               greater than key, to one position ahead
+               of their current position */
+            while (j >= 0 && function.getVariableNameIndex(variableNamesList.get(j)) > function.getVariableNameIndex(string_key)) {
+                variableNamesList.set(j+1, variableNamesList.get(j));
+                variableTypeList.set(j+1, variableTypeList.get(j));
+                j = j - 1;
+            }
+            variableNamesList.set(j+1, string_key);
+            variableTypeList.set(j+1, type_key);
+        }
+    }
 }

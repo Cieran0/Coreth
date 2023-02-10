@@ -58,7 +58,7 @@ public class Token {
         t.variableName = name;
         t.scope = scope;
         t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
-        t.id = VariableID.getVariableID(scope, name);
+        t.id = t.scope.getVariableNameIndex(name);
         return t;
     }
 
@@ -68,7 +68,7 @@ public class Token {
         t.variableName = name;
         t.scope = scope;
         t.variableType = t.scope.localNameVariableTypeMap.get(t.name);
-        t.id = VariableID.getVariableID(scope, name);
+        t.id = t.scope.getVariableNameIndex(name);
         return t;
     }
 
@@ -78,7 +78,7 @@ public class Token {
         t.variableType = variableType;
         t.scope = scope;
         t.scope.localNameVariableTypeMap.put(t.name, t.variableType);
-        t.id = VariableID.addNewVariableIDToList(scope, name);
+        t.id = t.scope.addNewVariableNameToList(name);
         return t;
     }
 
