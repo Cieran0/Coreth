@@ -2,7 +2,6 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,7 +16,7 @@ public class Function {
     private VariableType returnType = VariableType.VOID;
     private String content;
     private Boolean used = false;
-    private HashSet<String> variableNames;
+    private List<String> variableNames;
 
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
@@ -65,7 +64,7 @@ public class Function {
         this.isbuiltIn = false;
         this.expectedParams=new ArrayList<VariableType>();
         this.paramNames=new ArrayList<String>();
-        this.variableNames = new HashSet<String>();
+        this.variableNames = new ArrayList<String>();
         this.content = content;
         this.expectedParamsFromString(paramString);
         funcMap.put(name, this);
