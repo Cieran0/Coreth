@@ -1,6 +1,7 @@
 package parser;
 
 public enum TokenType {
+    NULL,
     FUNCTION_CALL,
     CONSTANT_INTEGER,
     INTEGER, 
@@ -30,5 +31,4 @@ public enum TokenType {
     NOT_GREATER,
     IS_FACTOR,
     RETURN,
-    NULL
 }

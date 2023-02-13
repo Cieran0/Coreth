@@ -334,4 +334,47 @@ public class Token {
         }
         return count;
     }
+
+    public String getData() {
+        String data = ""+this.type.ordinal();
+        switch (type) {
+            case IF:
+            case WHILE:
+            case FUNCTION_CALL:
+            data+=" { ";
+            for (List<Token> tk : params) {
+                for (Token t : tk) {
+                    data +=t.getData();
+                    data += ", ";
+                }
+            }
+            data += "}";
+            if(type==TokenType.FUNCTION_CALL) break;
+            data += " { ";
+            for (List<Token> tokens: blockTokens) {
+                for (Token t : tokens) {
+                    data +=t.getData();
+                    data += ", ";
+                }
+            }
+            data += "}";
+            break;
+            case CONSTANT_INTEGER:
+            case INTEGER:
+            case POINTER:
+                data += " {"+ this.getInt() + "}";
+                break;
+            case CONSTANT_STRING:
+            case STRING:
+                data += " {"+ CVMifier.getStringID(this.getString()) + "}";
+                break;
+            case VARIABLE_DECLARATION:
+            case VARIABLE_REFRENCE:
+                data += " {"+ this.getID() + "}";
+                break;
+            default:
+            break;
+        }
+        return data;
+    }
 }

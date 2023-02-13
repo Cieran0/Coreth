@@ -1,8 +1,23 @@
 package parser;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class CVMifier implements Serializer{
+
+    private static List<String> strings = new ArrayList<String>();
+    public static int getStringID(String s) {
+        if(!strings.contains(s)) {
+            strings.add(s);
+            return strings.size()-1;
+        }
+        for (int i = 0; i < strings.size(); i++) {
+            if(strings.get(i).equals(s)) 
+                return i;
+        }
+        return -1;
+    }
 
     public void save(String path) {
         int size = Function.funcMap.entrySet().size();
@@ -27,7 +42,7 @@ public class CVMifier implements Serializer{
                 break;
             }
         }
-        for (int j = 0; j < functionNames.length; j++) {
+        for (int j = mainIndex; j < functionNames.length; j++) {
             Function f = Function.funcMap.get(functionNames[j]);
             System.out.print(functionNames[j]);
             System.out.print(" { ");
@@ -38,6 +53,16 @@ public class CVMifier implements Serializer{
                 System.out.print(vt + ", ");
             }
             System.out.println("}");
+            System.out.print("{ ");
+            if(!f.isInBuiltFunction()) {
+                for (List<Token> tokens : f.getTokens()) {
+                    if(tokens==null)continue;
+                    for (Token t : tokens) {
+                        System.out.print(t.getData()+", ");
+                    }
+                }
+                System.out.println("}");
+            }
         }
     }
 }
