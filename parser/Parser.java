@@ -14,7 +14,7 @@ public class Parser {
     public static final Boolean printTokens = false;
     public static final Boolean dumpMemoryOnExit = false;
     public static final Boolean createJSONFile = true;
-    public static Serializer serializer = new JSONifier();
+    public static Serializer serializer = new CVMifier();
 
     public static HashMap<String,VariableType> stringVariableTypeMap = new HashMap<String,VariableType>() {{
         put("void",VariableType.VOID);

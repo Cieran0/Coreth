@@ -18,6 +18,7 @@ public class Function {
     private Boolean used = false;
     private List<String> variableNames;
 
+    public static Function[] inBuiltFunctions;
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
     private HashMap<String, Integer> localVariableIndexMap = new HashMap<String,Integer>();
@@ -28,33 +29,36 @@ public class Function {
 
     public static void setUpBuiltInFunctions() {
 
+        Function[] inBuilts = {
         new Function("printNumber", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
                 System.out.print(params.get(0).getInt());
                 return Token.new_NULLToken();
             }
-        },VariableType.VOID,List.of(VariableType.INT));
+        },VariableType.VOID,List.of(VariableType.INT)),
 
         new Function("readLine", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
                 return Token.new_String( sc.nextLine());
             }
-        },VariableType.STRING,List.of());
+        },VariableType.STRING,List.of()),
 
         new Function("strLen", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
                 return Token.new_Integer( params.get(0).getString().length());
             }
-        }, VariableType.INT, List.of(VariableType.STRING));
+        }, VariableType.INT, List.of(VariableType.STRING)),
 
-        new Function("syscallTwo", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT));
-        new Function("syscallThree", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT));
-        new Function("syscallFour", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
-        new Function("syscallFive", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
-        new Function("syscallSix", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
+        new Function("syscallTwo", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT)),
+        new Function("syscallThree", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT)),
+        new Function("syscallFour", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT)),
+        new Function("syscallFive", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT)),
+        new Function("syscallSix", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT)),
+        };
+        inBuiltFunctions=inBuilts;
     }
 
     public Function(String name, String content, String paramString, VariableType returnType) {
