@@ -1,27 +1,47 @@
 package parser;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 public class CVMifier implements Serializer{
 
+    private static String[] FunctionNameArray = new String[0];
+    private static Integer indexOfMain = 0;
+
     private static List<String> strings = new ArrayList<String>();
-    public static int getStringID(String s) {
+    public static short getStringID(String s) {
         if(!strings.contains(s)) {
             strings.add(s);
-            return strings.size()-1;
+            return (short)(strings.size()-1);
         }
-        for (int i = 0; i < strings.size(); i++) {
+        for (short i = 0; i < strings.size(); i++) {
             if(strings.get(i).equals(s)) 
                 return i;
         }
         return -1;
     }
 
-    public byte[] combineBytes(byte[] array1, byte[] array2) {
+    private String byteArrayToString(byte[] bytes) {
+        if(bytes.length < 1) return "";
+        String s = "";
+        for (byte b : bytes) {
+            s += b + ",";
+        }
+        return s.substring(0,s.length()-1);
+    }
+
+    public static byte[] combineBytes(byte[] array1, byte[] array2) {
         byte[] newByteArray = new byte[array1.length+array2.length];
         for (int i = 0; i < array1.length; i++) {
             newByteArray[i]=array1[i];
@@ -32,23 +52,33 @@ public class CVMifier implements Serializer{
         return newByteArray;
     }
 
-    public byte[] longToByteArray(long l) {
+    public static byte[] stringToByteArray(String s) {
+        byte[] bytes = new byte[s.length()+1];
+        for (int i = 0; i < s.length(); i++) {
+            bytes[i]=(byte)s.charAt(i);
+        }
+        bytes[bytes.length-1] = 0;
+        return bytes;
+    }
+
+    public static byte[] longToByteArray(long l) {
         return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(l).array();
     }
 
-    public byte[] intToByteArray(int i) {
+    public static byte[] intToByteArray(int i) {
         return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(i).array();
     }
 
-    public byte[] shortToByteArray(short s) {
+    public static byte[] shortToByteArray(short s) {
         return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(s).array();
     }
 
-    public byte[] byteToByteArray(byte b) {
+    public static byte[] byteToByteArray(byte b) {
         return new byte[]{b};
     }
 
     public void save(String path) {
+        byte[] finalData = new byte[0];
         int size = Function.funcMap.entrySet().size();
         int mainIndex = Function.inBuiltFunctions.length;
         String[] functionNames = new String[size];
@@ -71,27 +101,59 @@ public class CVMifier implements Serializer{
                 break;
             }
         }
-        for (int j = mainIndex; j < functionNames.length; j++) {
-            Function f = Function.funcMap.get(functionNames[j]);
-            System.out.print(functionNames[j]);
-            System.out.print(" { ");
-            System.out.print(f.size() + ", ");
-            System.out.print((f.getReturnType() != VariableType.VOID) + ", ");
-            System.out.print(f.getExpectedParams().size() + " } { ");
-            for (VariableType vt : f.getExpectedParams()) {
-                System.out.print(vt + ", ");
-            }
-            System.out.println("}");
-            System.out.print("{ ");
-            if(!f.isInBuiltFunction()) {
-                for (List<Token> tokens : f.getTokens()) {
-                    if(tokens==null)continue;
-                    for (Token t : tokens) {
-                        System.out.print(t.getData()+", ");
-                    }
-                }
-                System.out.println("}");
+        FunctionNameArray = Arrays.stream(functionNames).filter(s -> Function.funcMap.get(s).isUsed()).toArray(String[]::new);
+        for (int j = 0; j < functionNames.length; j++) {
+            if(functionNames[j].equals("main")) {
+                indexOfMain = j;
             }
         }
+
+        for (int j = 0; j < FunctionNameArray.length; j++) {
+            Function f = Function.funcMap.get(FunctionNameArray[j]);
+            if(!f.isUsed()) continue;
+            byte[] info = combineBytes(shortToByteArray((short)f.size()), combineBytes(byteToByteArray(((f.getReturnType() == VariableType.VOID)? (byte)0 : (byte)1)), shortToByteArray((short)f.getExpectedParams().size())));
+            byte[] expectedParams = new byte[f.getExpectedParams().size()];
+            for (int k = 0; k < expectedParams.length; k++) {
+                expectedParams[k] = (byte)f.getExpectedParams().get(k).ordinal();
+            }
+            byte[] tokenData = new byte[0];
+            for (List<Token> tokens : f.getTokens()) {
+                if(tokens==null)continue;
+                for (Token t : tokens) {
+                    tokenData = combineBytes(tokenData, t.getData());
+                }
+            }
+            byte[] functionData = combineBytes(info, combineBytes(expectedParams, tokenData));
+            finalData = combineBytes(finalData, functionData);
+        }
+        byte[] strData = new byte[0];
+        for (String string : strings) {
+            strData = combineBytes(strData, stringToByteArray(string));
+        }
+        long strOffset = finalData.length+8; 
+        finalData = combineBytes(finalData, strData);
+        finalData = combineBytes(longToByteArray(strOffset), finalData);
+        writeBytesToFile(finalData, "test.cvm");
+    }
+
+    private void writeBytesToFile(byte[] bytes, String path) {
+        try {
+            Files.write(new File(path).toPath(), bytes, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            System.out.println("Failed To Save File.");
+            e.printStackTrace();
+        }
+    }
+
+    public static short getFunctionID(String name) {
+        for (int i = 0; i < Function.inBuiltFunctions.length; i++) {
+            if(name.equals(Function.inBuiltFunctions[i].getName()))
+                return (short)((-1)*(i+1));
+        }
+        for (int i = 0; i < FunctionNameArray.length; i++) {
+            if(FunctionNameArray[i].equals(name))
+                return (short)(i);
+        }
+        return 0;
     }
 }

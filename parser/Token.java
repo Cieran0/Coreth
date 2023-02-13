@@ -14,7 +14,7 @@ public class Token {
     private VariableType variableType;
     private List<List<Token>> params;
     private List<List<Token>> blockTokens;
-    private Integer id;
+    private Short id;
 
     private Token(TokenType type, String name,  Integer charNo) {
         this.type = type;
@@ -210,7 +210,7 @@ public class Token {
         return this.charNo;
     }
 
-    public Integer getID() {
+    public Short getID() {
         return this.id;
     }
 
@@ -317,12 +317,16 @@ public class Token {
         switch (type) {
             case IF:
             case WHILE:
+            count+=2;
             for (List<Token> tokens: blockTokens) {
                 for (Token t : tokens) {
                     count +=t.size();
                 }
             }
             case FUNCTION_CALL:
+            if(type==TokenType.FUNCTION_CALL)
+                count+=2;
+            count+=2;
             for (List<Token> tk : params) {
                 for (Token t : tk) {
                     count +=t.size();
@@ -335,42 +339,49 @@ public class Token {
         return count;
     }
 
-    public String getData() {
-        String data = ""+this.type.ordinal();
+    private static int trueSize(List<List<Token>> tk) { 
+        int i = 0;
+        for (List<Token> list : tk) {
+            for (Token t : list) {
+                i+=t.size();
+            }
+        }
+        return i;
+    }
+
+    public byte[] getData() {
+        byte[] data = CVMifier.byteToByteArray((byte)this.type.ordinal());
         switch (type) {
+            case FUNCTION_CALL:
+                data = CVMifier.combineBytes(data, CVMifier.shortToByteArray(CVMifier.getFunctionID(this.name)));
             case IF:
             case WHILE:
-            case FUNCTION_CALL:
-            data+=" { ";
+            data = CVMifier.combineBytes(data, CVMifier.shortToByteArray((short)trueSize(params)));
             for (List<Token> tk : params) {
                 for (Token t : tk) {
-                    data +=t.getData();
-                    data += ", ";
+                    data = CVMifier.combineBytes(data, t.getData());
                 }
             }
-            data += "}";
             if(type==TokenType.FUNCTION_CALL) break;
-            data += " { ";
+            data = CVMifier.combineBytes(data, CVMifier.shortToByteArray((short)trueSize(blockTokens)));
             for (List<Token> tokens: blockTokens) {
                 for (Token t : tokens) {
-                    data +=t.getData();
-                    data += ", ";
+                    data = CVMifier.combineBytes(data, t.getData());
                 }
             }
-            data += "}";
             break;
             case CONSTANT_INTEGER:
             case INTEGER:
             case POINTER:
-                data += " {"+ this.getInt() + "}";
+                data = CVMifier.combineBytes(data, CVMifier.intToByteArray(this.getInt()));
                 break;
             case CONSTANT_STRING:
             case STRING:
-                data += " {"+ CVMifier.getStringID(this.getString()) + "}";
+                data = CVMifier.combineBytes(data, CVMifier.shortToByteArray(CVMifier.getStringID(this.getString())));
                 break;
             case VARIABLE_DECLARATION:
             case VARIABLE_REFRENCE:
-                data += " {"+ this.getID() + "}";
+                data = CVMifier.combineBytes(data, CVMifier.shortToByteArray(this.getID()));
                 break;
             default:
             break;

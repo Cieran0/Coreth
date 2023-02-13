@@ -103,13 +103,13 @@ public class Function {
         }
     }
 
-    public Integer addNewVariableNameToList(String name) {
+    public short addNewVariableNameToList(String name) {
         variableNames.add(name);
-        return variableNames.size()-1;
+        return (short)(variableNames.size()-1);
     }
 
-    public Integer getVariableNameIndex(String name) {
-        int i = 0;
+    public short getVariableNameIndex(String name) {
+        short i = 0;
         for (String s : variableNames) {
             if(s.equals(name)) {
                 return i;
