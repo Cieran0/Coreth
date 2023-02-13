@@ -3,15 +3,19 @@
 #include "stdio.h"
 #include <stdlib.h>
 
-struct function
+struct __attribute__((packed)) function
 {
+    u16 size;
+    u16 variable_count;
     variable* vars;
     variable* copyOfMem;
 } typedef function;
 
-function new_function(s64 numberOfVariables)
+function new_function(u32 info)
 {
-    return (function){.vars = (variable*)malloc(numberOfVariables*sizeof(variable))};
+    function f = *((function*)(&info));
+    f.vars = (variable*)malloc(f.variable_count*sizeof(variable));
+    return f;
 }
 
 void enter_function(function* func, variable* params, s64 count, variable** memory)
