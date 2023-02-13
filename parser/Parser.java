@@ -14,6 +14,7 @@ public class Parser {
     public static final Boolean printTokens = false;
     public static final Boolean dumpMemoryOnExit = false;
     public static final Boolean createJSONFile = true;
+    public static Serializer serializer = new JSONifier();
 
     public static HashMap<String,VariableType> stringVariableTypeMap = new HashMap<String,VariableType>() {{
         put("void",VariableType.VOID);
@@ -85,7 +86,7 @@ public class Parser {
             Memory.dump();
         }
         markUsedFunctions(mainFunction);
-        JSONifier.save("test.json");
+        serializer.save("test.json");
         
     }
 

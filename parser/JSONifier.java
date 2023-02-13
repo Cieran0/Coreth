@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JSONifier implements Serializer {
-    public static void save(String path) {
+    public void save(String path) {
         try {
             FileWriter myWriter = new FileWriter(path);
             myWriter.write(createJSON());
@@ -16,7 +16,7 @@ public class JSONifier implements Serializer {
         }
     }
     
-    private static String createJSON() {
+    private String createJSON() {
         String data = "{\n\"functions\": [";
         for (Function function : Function.funcMap.values()) {
             if(function.isInBuiltFunction() || !function.isUsed()) continue;
@@ -28,7 +28,7 @@ public class JSONifier implements Serializer {
         return data;
     }
 
-    private static String JSONfromFunction(Function function, int indent) {
+    private String JSONfromFunction(Function function, int indent) {
         String data = "\n{\n\"name\": \"" + function.getName() + "\",\n";
         data += "\"returnType\": \""+function.getReturnType()+"\",\n";
         if(function.getExpectedParams().size() > 0) {
@@ -85,7 +85,7 @@ public class JSONifier implements Serializer {
         return data.substring(0,data.length()-1).replace("\n", "\n" + "\t".repeat(indent));
     }
 
-    private static String JSONfromToken(Token token, int indent) {
+    private String JSONfromToken(Token token, int indent) {
         String data = "\n\"name\": \"" + token.getName().replace("\n", "\\n") + "\",\n";
         data += "\"type\": \"" + token.getType() + "\",\n";
         switch(token.getType()) {
