@@ -85,7 +85,8 @@ public class Parser {
             Memory.dump();
         }
         markUsedFunctions(mainFunction);
-        Serializer.SaveJSON("test.json");
+        JSONifier.save("test.json");
+        
     }
 
     public static String ExtractFunction(String lines) {
