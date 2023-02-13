@@ -86,7 +86,7 @@ public class Parser {
             Memory.dump();
         }
         markUsedFunctions(mainFunction);
-        serializer.save("test.json");
+        serializer.save("test.cvm");
         
     }
 

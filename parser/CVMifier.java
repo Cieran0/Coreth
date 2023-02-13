@@ -133,7 +133,7 @@ public class CVMifier implements Serializer{
         long strOffset = finalData.length+8; 
         finalData = combineBytes(finalData, strData);
         finalData = combineBytes(longToByteArray(strOffset), finalData);
-        writeBytesToFile(finalData, "test.cvm");
+        writeBytesToFile(finalData, path);
     }
 
     private void writeBytesToFile(byte[] bytes, String path) {
