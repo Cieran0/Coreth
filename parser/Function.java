@@ -258,4 +258,15 @@ public class Function {
             System.out.println("#####################");
         }
     }
+
+    public int size() {
+        if(this.isbuiltIn) return 0;
+        int count = 0;
+        for (List<Token> tokenList : tokens) {
+            for (Token t : tokenList) {
+                count+=t.size();
+            }
+        }
+        return count;
+    }
 }

@@ -279,18 +279,59 @@ public class Token {
                 for (Token t : tokens) {
                     t.printInfo(indent+4);
                 }
-            };
+            }
             case FUNCTION_CALL:
             print(indent, "Params", "");
             for (List<Token> tk : params) {
                 for (Token t : tk) {
                     t.printInfo(indent+4);
                 }
-            };
+            }
             break;
             default:
             break;
         }
         if(indent == 0) System.out.println("-----------------------");
+    }
+
+    public static int sizeOfType(TokenType type) {
+        switch(type) {
+            case CONSTANT_INTEGER:
+            case INTEGER:
+            case POINTER:
+                return 9;
+            case CONSTANT_STRING:
+            case STRING:
+                return 3;
+            case VARIABLE_DECLARATION:
+            case VARIABLE_REFRENCE:
+                return 3;
+            default:
+                break;
+        }
+        return 1;
+    }
+
+    public int size() {
+        int count = sizeOfType(type);
+        switch (type) {
+            case IF:
+            case WHILE:
+            for (List<Token> tokens: blockTokens) {
+                for (Token t : tokens) {
+                    count +=t.size();
+                }
+            }
+            case FUNCTION_CALL:
+            for (List<Token> tk : params) {
+                for (Token t : tk) {
+                    count +=t.size();
+                }
+            }
+            break;
+            default:
+            break;
+        }
+        return count;
     }
 }

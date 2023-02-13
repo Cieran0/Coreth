@@ -121,10 +121,12 @@ public class JSONifier implements Serializer {
                 data += "\n],\n";
             case FUNCTION_CALL:
                 data += "\"params\": [";
-                for (Token param : token.getParams().get(0)) {
-                    data += "\n\t{";
-                    data += JSONfromToken(param, indent+1);
-                    data += "\n\t},";
+                for (int i = 0; i < token.getParams().size(); i++) {
+                    for (Token param : token.getParams().get(i)) {
+                        data += "\n\t{";
+                        data += JSONfromToken(param, indent+1);
+                        data += "\n\t},";
+                    }
                 }
                 data = data.substring(0,data.length()-1);
                 data += "\n]\n";
