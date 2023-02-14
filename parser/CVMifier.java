@@ -111,7 +111,7 @@ public class CVMifier implements Serializer{
         for (int j = 0; j < FunctionNameArray.length; j++) {
             Function f = Function.funcMap.get(FunctionNameArray[j]);
             if(!f.isUsed()) continue;
-            byte[] info = combineBytes(shortToByteArray((short)f.size()), combineBytes(byteToByteArray(((f.getReturnType() == VariableType.VOID)? (byte)0 : (byte)1)), shortToByteArray((short)f.getExpectedParams().size())));
+            byte[] info = combineBytes(shortToByteArray((short)f.size()), shortToByteArray((short)f.getExpectedParams().size()));
             byte[] expectedParams = new byte[f.getExpectedParams().size()];
             for (int k = 0; k < expectedParams.length; k++) {
                 expectedParams[k] = (byte)f.getExpectedParams().get(k).ordinal();

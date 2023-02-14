@@ -1,3 +1,4 @@
+#include "stdlib.coreth"
 void main() {
     int x = 1
     int max = 100
@@ -19,10 +20,4 @@ void main() {
         print("\n")
         x = x + 1 
     } 
-}
-
-void print(string text) {
-    int len = strLen(text)
-    int ptr = ~text
-    syscallFour( 1, 0, ptr, len )
 }
