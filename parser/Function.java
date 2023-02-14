@@ -2,7 +2,6 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,8 +16,9 @@ public class Function {
     private VariableType returnType = VariableType.VOID;
     private String content;
     private Boolean used = false;
-    private HashSet<String> variableNames;
+    private List<String> variableNames;
 
+    public static Function[] inBuiltFunctions;
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
 
     private HashMap<String, Integer> localVariableIndexMap = new HashMap<String,Integer>();
@@ -29,33 +29,36 @@ public class Function {
 
     public static void setUpBuiltInFunctions() {
 
+        Function[] inBuilts = {
         new Function("printNumber", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
                 System.out.print(params.get(0).getInt());
                 return Token.new_NULLToken();
             }
-        },VariableType.VOID,List.of(VariableType.INT));
+        },VariableType.VOID,List.of(VariableType.INT)),
 
         new Function("readLine", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
                 return Token.new_String( sc.nextLine());
             }
-        },VariableType.STRING,List.of());
+        },VariableType.STRING,List.of()),
 
         new Function("strLen", new BuiltInFunction() {
             @Override
             public Token run(List<Token> params) {
                 return Token.new_Integer( params.get(0).getString().length());
             }
-        }, VariableType.INT, List.of(VariableType.STRING));
+        }, VariableType.INT, List.of(VariableType.STRING)),
 
-        new Function("syscallTwo", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT));
-        new Function("syscallThree", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT));
-        new Function("syscallFour", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
-        new Function("syscallFive", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
-        new Function("syscallSix", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT));
+        new Function("syscallTwo", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT)),
+        new Function("syscallThree", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT)),
+        new Function("syscallFour", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT)),
+        new Function("syscallFive", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT)),
+        new Function("syscallSix", Syscalls.syscall, VariableType.INT,List.of(VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT,VariableType.INT)),
+        };
+        inBuiltFunctions=inBuilts;
     }
 
     public Function(String name, String content, String paramString, VariableType returnType) {
@@ -65,7 +68,7 @@ public class Function {
         this.isbuiltIn = false;
         this.expectedParams=new ArrayList<VariableType>();
         this.paramNames=new ArrayList<String>();
-        this.variableNames = new HashSet<String>();
+        this.variableNames = new ArrayList<String>();
         this.content = content;
         this.expectedParamsFromString(paramString);
         funcMap.put(name, this);
@@ -100,13 +103,13 @@ public class Function {
         }
     }
 
-    public Integer addNewVariableNameToList(String name) {
+    public short addNewVariableNameToList(String name) {
         variableNames.add(name);
-        return variableNames.size()-1;
+        return (short)(variableNames.size()-1);
     }
 
-    public Integer getVariableNameIndex(String name) {
-        int i = 0;
+    public short getVariableNameIndex(String name) {
+        short i = 0;
         for (String s : variableNames) {
             if(s.equals(name)) {
                 return i;
@@ -254,5 +257,16 @@ public class Function {
             }
             System.out.println("#####################");
         }
+    }
+
+    public int size() {
+        if(this.isbuiltIn) return 0;
+        int count = 0;
+        for (List<Token> tokenList : tokens) {
+            for (Token t : tokenList) {
+                count+=t.size();
+            }
+        }
+        return count;
     }
 }

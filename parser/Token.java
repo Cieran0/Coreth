@@ -14,7 +14,7 @@ public class Token {
     private VariableType variableType;
     private List<List<Token>> params;
     private List<List<Token>> blockTokens;
-    private Integer id;
+    private Short id;
 
     private Token(TokenType type, String name,  Integer charNo) {
         this.type = type;
@@ -210,7 +210,7 @@ public class Token {
         return this.charNo;
     }
 
-    public Integer getID() {
+    public Short getID() {
         return this.id;
     }
 
@@ -279,18 +279,113 @@ public class Token {
                 for (Token t : tokens) {
                     t.printInfo(indent+4);
                 }
-            };
+            }
             case FUNCTION_CALL:
             print(indent, "Params", "");
             for (List<Token> tk : params) {
                 for (Token t : tk) {
                     t.printInfo(indent+4);
                 }
-            };
+            }
             break;
             default:
             break;
         }
         if(indent == 0) System.out.println("-----------------------");
+    }
+
+    public static int sizeOfType(TokenType type) {
+        switch(type) {
+            case CONSTANT_INTEGER:
+            case INTEGER:
+            case POINTER:
+                return 9;
+            case CONSTANT_STRING:
+            case STRING:
+                return 3;
+            case VARIABLE_DECLARATION:
+            case VARIABLE_REFRENCE:
+                return 3;
+            default:
+                break;
+        }
+        return 1;
+    }
+
+    public int size() {
+        int count = sizeOfType(type);
+        switch (type) {
+            case IF:
+            case WHILE:
+            count+=2;
+            for (List<Token> tokens: blockTokens) {
+                for (Token t : tokens) {
+                    count +=t.size();
+                }
+            }
+            case FUNCTION_CALL:
+            if(type==TokenType.FUNCTION_CALL)
+                count+=2;
+            count+=2;
+            for (List<Token> tk : params) {
+                for (Token t : tk) {
+                    count +=t.size();
+                }
+            }
+            break;
+            default:
+            break;
+        }
+        return count;
+    }
+
+    private static int trueSize(List<List<Token>> tk) { 
+        int i = 0;
+        for (List<Token> list : tk) {
+            for (Token t : list) {
+                i+=t.size();
+            }
+        }
+        return i;
+    }
+
+    public byte[] getData() {
+        byte[] data = CVMifier.byteToByteArray((byte)this.type.ordinal());
+        switch (type) {
+            case FUNCTION_CALL:
+                data = CVMifier.combineBytes(data, CVMifier.shortToByteArray(CVMifier.getFunctionID(this.name)));
+            case IF:
+            case WHILE:
+            data = CVMifier.combineBytes(data, CVMifier.shortToByteArray((short)trueSize(params)));
+            for (List<Token> tk : params) {
+                for (Token t : tk) {
+                    data = CVMifier.combineBytes(data, t.getData());
+                }
+            }
+            if(type==TokenType.FUNCTION_CALL) break;
+            data = CVMifier.combineBytes(data, CVMifier.shortToByteArray((short)trueSize(blockTokens)));
+            for (List<Token> tokens: blockTokens) {
+                for (Token t : tokens) {
+                    data = CVMifier.combineBytes(data, t.getData());
+                }
+            }
+            break;
+            case CONSTANT_INTEGER:
+            case INTEGER:
+            case POINTER:
+                data = CVMifier.combineBytes(data, CVMifier.intToByteArray(this.getInt()));
+                break;
+            case CONSTANT_STRING:
+            case STRING:
+                data = CVMifier.combineBytes(data, CVMifier.shortToByteArray(CVMifier.getStringID(this.getString())));
+                break;
+            case VARIABLE_DECLARATION:
+            case VARIABLE_REFRENCE:
+                data = CVMifier.combineBytes(data, CVMifier.shortToByteArray(this.getID()));
+                break;
+            default:
+            break;
+        }
+        return data;
     }
 }

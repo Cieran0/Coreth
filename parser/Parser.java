@@ -14,6 +14,7 @@ public class Parser {
     public static final Boolean printTokens = false;
     public static final Boolean dumpMemoryOnExit = false;
     public static final Boolean createJSONFile = true;
+    public static Serializer serializer = new CVMifier();
 
     public static HashMap<String,VariableType> stringVariableTypeMap = new HashMap<String,VariableType>() {{
         put("void",VariableType.VOID);
@@ -39,16 +40,38 @@ public class Parser {
         return null;
     }
 
+    public static void markFunctionIfUsedInToken(Token t) {
+        switch(t.getType()) {
+            case IF:
+            case WHILE:
+                for (List<Token> bTokenList : t.getBlockTokens()) {
+                    for (Token bToken : bTokenList) {
+                        markFunctionIfUsedInToken(bToken);
+                    }
+                }
+            case FUNCTION_CALL:
+                for (List<Token> pTokenList : t.getParams()) {
+                    for (Token pToken : pTokenList) {
+                        markFunctionIfUsedInToken(pToken);
+                    }
+                }
+                if(t.getType()!= TokenType.FUNCTION_CALL) 
+                    break;
+                Function func = Function.funcMap.get(t.getName());
+                if(!func.isInBuiltFunction() && !func.isUsed()) {
+                    markUsedFunctions(func);
+                }
+            break;
+            default:
+            break;
+        }
+    }
+
     public static void markUsedFunctions(Function main) {
         main.setUsed();
         for (List<Token> tokenList : main.getTokens()) {
             for (Token token : tokenList) {
-                if(token.getType() == TokenType.FUNCTION_CALL) {
-                    Function func = Function.funcMap.get(token.getName());
-                    if(!func.isInBuiltFunction() && !func.isUsed()) {
-                        markUsedFunctions(func);
-                    }
-                }
+                markFunctionIfUsedInToken(token);
             }
         }
     }
@@ -85,7 +108,8 @@ public class Parser {
             Memory.dump();
         }
         markUsedFunctions(mainFunction);
-        Serializer.SaveJSON("test.json");
+        serializer.save("test.cvm");
+        
     }
 
     public static String ExtractFunction(String lines) {

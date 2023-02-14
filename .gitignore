@@ -34,3 +34,4 @@ main
 *.jar
 test.txt
 *.json
+*.cvm
