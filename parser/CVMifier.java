@@ -111,11 +111,12 @@ public class CVMifier implements Serializer{
         for (int j = 0; j < FunctionNameArray.length; j++) {
             Function f = Function.funcMap.get(FunctionNameArray[j]);
             if(!f.isUsed()) continue;
-            byte[] info = combineBytes(shortToByteArray((short)f.size()), shortToByteArray((short)f.getExpectedParams().size()));
-            byte[] expectedParams = new byte[f.getExpectedParams().size()];
-            for (int k = 0; k < expectedParams.length; k++) {
-                expectedParams[k] = (byte)f.getExpectedParams().get(k).ordinal();
+            byte[] info = shortToByteArray((short)f.variableNames.size());
+            byte[] variable_types = new byte[f.variableNames.size()];
+            for (int k = 0; k < f.variableNames.size(); k++) {
+                variable_types[k] = (byte)f.localNameVariableTypeMap.get(f.variableNames.get(k)).ordinal();
             }
+            info = combineBytes(info, variable_types);
             byte[] tokenData = new byte[0];
             for (List<Token> tokens : f.getTokens()) {
                 if(tokens==null)continue;
@@ -123,7 +124,9 @@ public class CVMifier implements Serializer{
                     tokenData = combineBytes(tokenData, t.getData());
                 }
             }
-            byte[] functionData = combineBytes(info, combineBytes(expectedParams, tokenData));
+            byte[] functionData = combineBytes(info, tokenData);
+            functionData = combineBytes((shortToByteArray((short)(functionData.length-2))), functionData);
+            System.out.println(functionData.length-4);
             finalData = combineBytes(finalData, functionData);
         }
         byte[] strData = new byte[0];

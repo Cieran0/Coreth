@@ -77,7 +77,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        String path = (args.length > 0)? args[0] : "test.coreth";
+        String path = (args.length > 0)? args[0] : "fizzbuzz.coreth";
         Syscalls.SetUpMap();
         Function.setUpBuiltInFunctions();
 

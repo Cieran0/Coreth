@@ -16,7 +16,7 @@ public class Function {
     private VariableType returnType = VariableType.VOID;
     private String content;
     private Boolean used = false;
-    private List<String> variableNames;
+    public List<String> variableNames;
 
     public static Function[] inBuiltFunctions;
     public static HashMap<String,Function> funcMap = new HashMap<String,Function>();
@@ -100,6 +100,7 @@ public class Function {
                 Parser.exitWithError(typeString + " is not a valid type", 92);
             }
             this.expectedParams.add(type);
+            this.localNameVariableTypeMap.put(name,type);
         }
     }
 
