@@ -9,7 +9,6 @@
 
 #define MAX_FUNCTION_COUNT 0xFFF
 
-u8 test[]= {205,0,0,0,0,0,0,0,177,0,3,0,1,1,1,6,0,0,8,2,1,0,0,0,6,1,0,8,2,100,0,0,0,6,2,0,18,7,0,27,7,255,255,7,255,255,133,0,7,255,255,8,2,0,0,0,0,17,13,0,28,2,3,0,0,0,7,255,255,21,0,1,1,0,3,0,4,0,0,7,255,255,8,2,1,0,0,0,17,13,0,28,2,5,0,0,0,7,255,255,21,0,1,1,0,3,0,4,1,0,7,255,255,8,2,1,0,0,0,17,4,0,19,7,255,255,8,0,1,255,255,3,0,7,255,255,1,1,0,3,0,4,2,0,7,255,255,8,12,7,255,255,2,1,0,0,0,52,0,3,0,2,1,1,6,1,0,8,1,253,255,3,0,7,0,0,6,2,0,8,9,7,0,0,1,250,255,24,0,2,1,0,0,0,2,0,0,0,0,7,2,0,7,1,0,70,105,122,122,0,66,117,122,122,0,10,0};
 u8* bytes;
 u64 length; 
 u8* ptr;
@@ -39,6 +38,7 @@ void import_functions(function* buff) {
     while (ptr < bytes+stringOffset)
     {
         function f = new_function(next_s32(&ptr));
+        f.instructions=ptr;
         buff[fCount] = f;
         ptr+=f.size;
         fCount++;
@@ -56,14 +56,14 @@ int main(int argc, char const *argv[])
     import_functions(functions);
     stringOffset = next_s32(&ptr);
     reset_ptr();
-    for (u64 i = 0; i < length; i++)
-    {
-        printf("%i,",next_u8(&ptr));
-    }
-    printf("%s","\n");
-    printf("%s\n",(bytes+stringOffset));
-
-    enter_function(functions[0],NULL,0,&mem);
-    exit_function(&mem);
+    printf("%i\n",functions[0].size);
+    printf("%p\n",functions[0].instructions);
+    //for (u64 i = 0; i < length; i++)
+    //{
+    //    printf("%i,",next_u8(&ptr));
+    //}
+    //printf("%s","\n");
+    //printf("%s\n",(bytes+stringOffset));
+    execute_function(functions[0],NULL,NULL,0);
     return 0;
 }

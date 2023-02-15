@@ -7,4 +7,5 @@ struct __attribute__((packed)) function
 {
     u16 size;
     u16 variable_count;
+    u8* instructions;
 } typedef function;
